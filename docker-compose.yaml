@@ -1,0 +1,48 @@
+services:
+  server-client:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./server:/app/server
+      - ./client:/app/client
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=myapp
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+      - '80:80'
+    depends_on:
+      - postgres-dev
+    networks:
+      - app-network-dev
+
+  postgres-dev:
+    image: postgres:13
+    environment:
+      - DB_NAME=myapp
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - app-network-dev
+
+networks:
+  app-network-dev:
+    driver: bridge
+
+volumes:
+  postgres-dev-data:
