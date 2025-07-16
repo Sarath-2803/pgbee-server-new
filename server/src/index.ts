@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import Express from 'express';
 import 'tsconfig-paths/register';
 // import { connect } from '@/utils';
 const app = express();
