@@ -1,36 +1,72 @@
+import eslintPluginTs from '@typescript-eslint/eslint-plugin';
+import parserTs from '@typescript-eslint/parser';
+import pluginReact from 'eslint-plugin-react';
+import pluginReactHooks from 'eslint-plugin-react-hooks';
 import js from '@eslint/js';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
 
 export default [
   js.configs.recommended,
-  {
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-    },
-    rules: {
-      'no-console': 'warn',
-      'no-unused-vars': 'error',
-    },
-  },
-  // TypeScript files across all packages
+
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: tsparser,
+      globals: {
+        process: 'readonly',
+      },
+      parser: parserTs,
       parserOptions: {
-        ecmaVersion: 2022,
+        project: true, // Automatically detects tsconfig.json
+        tsconfigRootDir: './',
         sourceType: 'module',
       },
     },
     plugins: {
-      '@typescript-eslint': tseslint,
+      '@typescript-eslint': eslintPluginTs,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': 'error',
-      'no-unused-vars': 'off', // Turn off base rule
+      ...eslintPluginTs.configs.recommended.rules,
+    },
+  },
+
+  // React-specific settings
+  {
+    files: ['client/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        project: './client/tsconfig.eslint.json',
+      },
+      globals: {
+        process: 'readonly',
+        window: true,
+        document: true,
+      },
+    },
+    plugins: {
+      react: pluginReact,
+      'react-hooks': pluginReactHooks,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+    rules: {
+      ...pluginReact.configs.recommended.rules,
+      ...pluginReactHooks.configs.recommended.rules,
+      'react/react-in-jsx-scope': 'off', // React 17+
+    },
+  },
+
+  // Server-specific Node.js environment
+  {
+    files: ['server/**/*.ts'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+      },
     },
   },
 ];
