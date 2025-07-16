@@ -6,7 +6,7 @@ RUN npm install -g pnpm
 
 COPY . .
 
-RUN pnpm i --recursive
+RUN pnpm i --recursive --force
 
 EXPOSE 8000
 EXPOSE 80
