@@ -1,8 +1,8 @@
-import { Student, Owner, Role, User } from '@/models';
+import { Student, Owner, Role, User } from "@/models";
 
 Role.hasOne(User, {
   foreignKey: {
-    name: 'roleId',
+    name: "roleId",
     allowNull: false,
   },
   foreignKeyConstraint: true,
@@ -10,7 +10,7 @@ Role.hasOne(User, {
 
 User.hasOne(Owner, {
   foreignKey: {
-    name: 'userId',
+    name: "userId",
     allowNull: false,
   },
   foreignKeyConstraint: true,
@@ -18,7 +18,7 @@ User.hasOne(Owner, {
 
 User.hasOne(Student, {
   foreignKey: {
-    name: 'userId',
+    name: "userId",
     allowNull: false,
   },
   foreignKeyConstraint: true,

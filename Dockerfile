@@ -6,9 +6,8 @@ RUN npm install -g pnpm
 
 COPY . .
 
-RUN pnpm i --recursive --force
+RUN pnpm i
 
 EXPOSE 8000
-EXPOSE 80
 
 CMD ["pnpm", "run", "dev"]

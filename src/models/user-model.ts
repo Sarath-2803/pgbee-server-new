@@ -1,7 +1,7 @@
-import { v4 as uuid } from 'uuid';
-import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '@/utils';
-import bcrypt from 'bcryptjs';
+import { v4 as uuid } from "uuid";
+import { DataTypes, Model, Optional } from "sequelize";
+import { sequelize } from "@/utils";
+import bcrypt from "bcryptjs";
 
 interface UserAttributes {
   id?: string;
@@ -12,10 +12,10 @@ interface UserAttributes {
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
   verifyPassword(
     this: UserCreationAttributes,
-    password: string
+    password: string,
   ): Promise<boolean>;
 }
 
@@ -39,7 +39,7 @@ class User
   }
 
   public static async createUser(
-    userData: UserCreationAttributes
+    userData: UserCreationAttributes,
   ): Promise<User> {
     return await this.create(userData);
   }
@@ -66,7 +66,7 @@ User.init(
       allowNull: false,
       set(value: string) {
         const hashedPassword = bcrypt.hashSync(value, 10);
-        this.setDataValue('password', hashedPassword);
+        this.setDataValue("password", hashedPassword);
       },
     },
     role: {
@@ -77,10 +77,10 @@ User.init(
   },
   {
     sequelize,
-    modelName: 'User',
-    tableName: 'users',
+    modelName: "User",
+    tableName: "users",
     timestamps: true,
-  }
+  },
 );
 
 export default User;

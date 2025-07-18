@@ -1,5 +1,0 @@
-packages/mobile/
-dist/
-build/
-node_modules/
-*.lock

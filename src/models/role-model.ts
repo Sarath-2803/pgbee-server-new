@@ -1,6 +1,6 @@
-import { v4 as uuid } from 'uuid';
-import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '@/utils';
+import { v4 as uuid } from "uuid";
+import { DataTypes, Model, Optional } from "sequelize";
+import { sequelize } from "@/utils";
 
 interface RoleAttributes {
   id: string;
@@ -10,7 +10,7 @@ interface RoleAttributes {
 }
 
 class Role
-  extends Model<Optional<RoleAttributes, 'id'>>
+  extends Model<Optional<RoleAttributes, "id">>
   implements RoleAttributes
 {
   public id!: string;
@@ -23,7 +23,7 @@ class Role
   }
 
   public static async createRole(
-    roleData: Optional<RoleAttributes, 'id'>
+    roleData: Optional<RoleAttributes, "id">,
   ): Promise<Role> {
     return await this.create(roleData);
   }
@@ -45,10 +45,10 @@ Role.init(
   },
   {
     sequelize,
-    modelName: 'Role',
-    tableName: 'roles',
+    modelName: "Role",
+    tableName: "roles",
     timestamps: true,
-  }
+  },
 );
 
 export default Role;

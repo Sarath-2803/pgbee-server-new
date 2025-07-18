@@ -1,6 +1,6 @@
-import { v4 as uuid } from 'uuid';
-import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '@/utils';
+import { v4 as uuid } from "uuid";
+import { DataTypes, Model, Optional } from "sequelize";
+import { sequelize } from "@/utils";
 
 interface StudentAttributes {
   id?: string;
@@ -9,7 +9,7 @@ interface StudentAttributes {
   updatedAt?: Date;
 }
 
-interface StudentCreationAttributes extends Optional<StudentAttributes, 'id'> {
+interface StudentCreationAttributes extends Optional<StudentAttributes, "id"> {
   verifyStudent(id: string): Promise<Student>;
 }
 
@@ -27,7 +27,7 @@ class Student
   }
 
   public static async createStudent(
-    userData: StudentCreationAttributes
+    userData: StudentCreationAttributes,
   ): Promise<Student> {
     return await this.create(userData);
   }
@@ -48,10 +48,10 @@ Student.init(
   },
   {
     sequelize,
-    modelName: 'Student',
-    tableName: 'students',
+    modelName: "Student",
+    tableName: "students",
     timestamps: true,
-  }
+  },
 );
 
 export default Student;

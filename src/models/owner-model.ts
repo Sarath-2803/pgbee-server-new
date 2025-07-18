@@ -1,13 +1,18 @@
-import { v4 as uuid } from 'uuid';
-import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '@/utils';
+import { v4 as uuid } from "uuid";
+import { DataTypes, Model, Optional } from "sequelize";
+import { sequelize } from "@/utils";
 
 interface OwnerAttributes {
   id?: string;
   name?: string;
+  hostelName?: string;
   phone?: string;
   address?: string;
+  curfew?: boolean;
+  description?: string;
+  distance?: number;
   location?: string;
+  rent?: number;
   files?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -19,9 +24,14 @@ interface OwnerAttributes {
 class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
   public id!: string;
   public name?: string;
+  public hostelName?: string;
   public phone?: string;
   public address?: string;
+  public curfew?: boolean;
   public location?: string;
+  public description?: string;
+  public distance?: number;
+  public rent?: number;
   public files?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -29,7 +39,7 @@ class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
     return await this.findOne({ where: { id } });
   }
   public static async createOwner(
-    ownerData: Optional<OwnerAttributes, 'id' | 'files'>
+    ownerData: Optional<OwnerAttributes, "id" | "files">,
   ): Promise<Owner> {
     return await this.create(ownerData);
   }
@@ -46,12 +56,28 @@ Owner.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    hostelName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     phone: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    distance: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    curfew: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     address: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    rent: {
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     location: {
@@ -65,10 +91,10 @@ Owner.init(
   },
   {
     sequelize,
-    modelName: 'Owner',
-    tableName: 'owners',
+    modelName: "Owner",
+    tableName: "owners",
     timestamps: true,
-  }
+  },
 );
 
 export default Owner;

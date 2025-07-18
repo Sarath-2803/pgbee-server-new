@@ -2,11 +2,10 @@ services:
   server-client:
     build:
       context: ./
-      dockerfile: Dockerfile
     volumes:
-      - ./server:/app/server
-      - ./client:/app/client
+      - ./:/app
     environment:
+      - PORT=8080
       - NODE_ENV=development
       - DB_HOST=postgres-dev
       - DB_PORT=5432
@@ -17,22 +16,20 @@ services:
     env_file:
       - .env
     ports:
-      - '8000:8000'
-      - '80:81'
+      - "8000:8000"
     depends_on:
       - postgres-dev
     networks:
       - app-network-dev
 
   postgres-dev:
-    image: postgres:13
+    image: postgres
     environment:
-      - DB_HOST=postgres-dev
-      - DB_NAME=myapp
-      - DB_USER=postgres
-      - DB_PASSWORD=password
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     networks:
