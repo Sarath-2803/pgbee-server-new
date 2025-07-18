@@ -1,2 +1,2 @@
-import Sequelize, { connect } from './sequelize';
-export { Sequelize, connect };
+import sequelize, { connect } from './sequelize';
+export { sequelize, connect };
