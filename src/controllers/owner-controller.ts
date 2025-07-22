@@ -19,9 +19,9 @@ const ownerSchema = z.object({
 });
 const updateOwnerSchema = ownerSchema.partial();
 
-export type createOwnerDTO = z.infer<typeof ownerSchema>;
+type createOwnerDTO = z.infer<typeof ownerSchema>;
 
-export const regOwner = async (req: Request, res: Response) => {
+const regOwner = async (req: Request, res: Response) => {
   try {
     const ownerData: createOwnerDTO = ownerSchema.parse(req.body);
     const newOwner = await Owner.createOwner(ownerData);
@@ -35,7 +35,7 @@ export const regOwner = async (req: Request, res: Response) => {
   }
 };
 
-export const getOwnerById = async (req: Request, res: Response) => {
+const getOwnerById = async (req: Request, res: Response) => {
   try {
     const ownerId = req.params.id;
     const owner = await Owner.findById(ownerId);
@@ -48,7 +48,7 @@ export const getOwnerById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-export const getAllOwners = async (req: Request, res: Response) => {
+const getAllOwners = async (req: Request, res: Response) => {
   try {
     const owners = await Owner.findAll();
     res.status(200).json(owners);
@@ -57,7 +57,7 @@ export const getAllOwners = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-export const updateOwner = async (req: Request, res: Response) => {
+const updateOwner = async (req: Request, res: Response) => {
   try {
     const ownerId = req.params.id;
     const ownerData = updateOwnerSchema.parse(req.body);
@@ -77,7 +77,7 @@ export const updateOwner = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteOwner = async (req: Request, res: Response) => {
+const deleteOwner = async (req: Request, res: Response) => {
   try {
     const ownerId = req.params.id;
     const owner = await Owner.findById(ownerId);
@@ -90,4 +90,12 @@ export const deleteOwner = async (req: Request, res: Response) => {
     console.error(`Error deleting owner with id${req.params.id}`, error);
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+export default {
+  regOwner,
+  getAllOwners,
+  getOwnerById,
+  updateOwner,
+  deleteOwner,
 };

@@ -1,1 +1,2 @@
-export * from "./owner-controller";
+import ownerController from "./owner-controller";
+export { ownerController };
