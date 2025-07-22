@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import Owner from "../models/owner-model";
+import { Owner } from "@/models";
 import { z } from "zod";
 import { ZodError } from "zod";
 
