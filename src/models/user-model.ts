@@ -1,7 +1,10 @@
 import { v4 as uuid } from "uuid";
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/utils";
 import bcrypt from "bcryptjs";
+
+// Import Role type for association methods
+import type Role from "./role-model";
 
 interface UserAttributes {
   id?: string;
@@ -12,15 +15,16 @@ interface UserAttributes {
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
-  verifyPassword(
-    this: UserCreationAttributes,
-    password: string,
-  ): Promise<boolean>;
-}
+// interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
+//   verifyPassword(
+//     this: UserCreationAttributes,
+//     password: string,
+//   ): Promise<boolean>;
+// }
 
 class User
-  extends Model<UserAttributes, UserCreationAttributes>
+  // extends Model<UserAttributes, UserCreationAttributes>
+  extends Model<UserAttributes>
   implements UserAttributes
 {
   public id!: string;
@@ -29,6 +33,10 @@ class User
   public role!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Association methods (added by Sequelize)
+  public setRole!: (role: Role) => Promise<void>;
+  public getRole!: () => Promise<Role>;
 
   public async verifyPassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
@@ -39,7 +47,8 @@ class User
   }
 
   public static async createUser(
-    userData: UserCreationAttributes,
+    // userData: UserCreationAttributes,
+    userData: UserAttributes,
   ): Promise<User> {
     return await this.create(userData);
   }
@@ -70,9 +79,8 @@ User.init(
       },
     },
     role: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: true,
-      unique: true,
     },
   },
   {
