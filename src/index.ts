@@ -28,6 +28,7 @@ app.set("views", "./views");
 app.use(ROUTE_PREFIX, routes.authRouter);
 // Make sure routes.hostelController is an Express Router instance
 app.use(ROUTE_PREFIX, routes.hostelRouter);
+app.use(ROUTE_PREFIX, routes.reviewRouter);
 
 // app.get(ROUTE_PREFIX, (_req: Express.Request, res: Express.Response) => {
 //   res.json({ message: "Hello, World!" });

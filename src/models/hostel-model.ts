@@ -2,7 +2,6 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { v4 as uuid } from "uuid";
 import { sequelize } from "@/utils";
 
-// Import User type for association methods
 import type User from "./user-model";
 
 interface HostelAttributes {

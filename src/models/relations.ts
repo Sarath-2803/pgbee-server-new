@@ -1,4 +1,4 @@
-import { Student, Owner, User, Role, Hostel } from "@/models";
+import { Student, Owner, User, Role, Hostel, Review } from "@/models";
 
 Role.hasOne(User, {
   foreignKey: {
@@ -45,4 +45,20 @@ Hostel.belongsTo(User, {
     name: "userId",
     allowNull: true,
   },
+});
+
+User.hasMany(Review, {
+  foreignKey: "userId",
+});
+
+Review.belongsTo(User, {
+  foreignKey: "userId",
+});
+
+Hostel.hasMany(Review, {
+  foreignKey: "hostelId",
+});
+
+Review.belongsTo(Hostel, {
+  foreignKey: "hostelId",
 });
