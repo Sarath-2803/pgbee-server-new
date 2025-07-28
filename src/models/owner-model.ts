@@ -20,8 +20,13 @@ interface OwnerAttributes {
   updatedAt?: Date;
 }
 
-// interface OwnerCreationAttributes
-//   extends Optional<OwnerAttributes, 'id' | 'files'> {}
+interface OwnerCreationAttributes
+  extends Optional<OwnerAttributes, "id" | "files"> {
+  verifyPassword(
+    this: OwnerCreationAttributes,
+    password: string,
+  ): Promise<boolean>;
+}
 
 class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
   public id!: string;
