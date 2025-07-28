@@ -1,4 +1,5 @@
 import { login, signup } from "./user-auth-controller";
+import ownerController from "./owner-controller";
 import {
   googlelogin,
   googleCallback,
@@ -13,4 +14,5 @@ export default {
   googleCallback,
   googleSuccess,
   googleSignout,
+  ownerController,
 };

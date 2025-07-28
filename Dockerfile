@@ -2,12 +2,10 @@ FROM node:latest
 
 WORKDIR /app
 
-RUN npm install -g pnpm
-
 COPY . .
 
-RUN pnpm i
+RUN npm i
 
 EXPOSE 8000
 
-CMD ["pnpm", "run", "dev"]
+CMD ["npm", "run", "dev"]

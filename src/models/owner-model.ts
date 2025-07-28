@@ -14,6 +14,8 @@ interface OwnerAttributes {
   location?: string;
   rent?: number;
   files?: string;
+  bedrooms?: number;
+  bathrooms?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -37,6 +39,8 @@ class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
   public description?: string;
   public distance?: number;
   public rent?: number;
+  public bedrooms?: number;
+  public bathrooms?: number;
   public files?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -92,6 +96,16 @@ Owner.init(
     files: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    bathrooms: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
+    bedrooms: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
     },
   },
   {
