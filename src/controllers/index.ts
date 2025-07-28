@@ -1,18 +1,11 @@
-import { login, signup } from "./user-auth-controller";
 import ownerController from "./owner-controller";
-import {
-  googlelogin,
-  googleCallback,
-  googleSuccess,
-  googleSignout,
-} from "./google-auth-controller";
+import googleAuthController from "./google-auth-controller";
+import authController from "./user-auth-controller";
+import hostelController from "./hostel-controller";
 
 export default {
-  login,
-  signup,
-  googlelogin,
-  googleCallback,
-  googleSuccess,
-  googleSignout,
+  googleAuthController,
   ownerController,
+  authController,
+  hostelController,
 };

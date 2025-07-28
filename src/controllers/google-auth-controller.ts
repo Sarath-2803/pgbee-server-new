@@ -22,7 +22,7 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET environment variable must be set");
 }
 
-export const sessionConfig = {
+const sessionConfig = {
   secret: sessionSecret,
   resave: false,
   saveUninitialized: true,
@@ -34,15 +34,15 @@ export const sessionConfig = {
   },
 };
 
-export const googlelogin = passport.authenticate("google", {
+const googlelogin = passport.authenticate("google", {
   scope: ["profile", "email"],
 });
 
-export const googleCallback = passport.authenticate("google", {
+const googleCallback = passport.authenticate("google", {
   failureRedirect: "/login",
 });
 
-export const googleSuccess = async (req: Request, res: Response) => {
+const googleSuccess = async (req: Request, res: Response) => {
   if (req.user) {
     const user = req.user as AuthenticatedUser;
     const accessToken = jwt.sign(
@@ -82,7 +82,7 @@ export const googleSuccess = async (req: Request, res: Response) => {
 };
 
 //signout function on google login
-export const googleSignout = (req: Request, res: Response) => {
+const googleSignout = (req: Request, res: Response) => {
   req.logout((error) => {
     if (error) {
       return res
@@ -107,4 +107,12 @@ export const googleSignout = (req: Request, res: Response) => {
       message: "Signed out successfully",
     });
   });
+};
+
+export default {
+  sessionConfig,
+  googlelogin,
+  googleCallback,
+  googleSuccess,
+  googleSignout,
 };

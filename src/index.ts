@@ -6,7 +6,7 @@ import passport from "passport";
 import "tsconfig-paths/register";
 import { connect } from "@/utils";
 import routes from "./routes";
-import { sessionConfig } from "./controllers/google-auth-controller";
+import googleAuthController from "./controllers/google-auth-controller";
 import "@/config/passport";
 
 const app = express();
@@ -18,7 +18,7 @@ connect();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(session(sessionConfig));
+app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -26,6 +26,8 @@ app.set("view engine", "ejs");
 app.set("views", "./views");
 
 app.use(ROUTE_PREFIX, routes.authRouter);
+// Make sure routes.hostelController is an Express Router instance
+app.use(ROUTE_PREFIX, routes.hostelRouter);
 
 // app.get(ROUTE_PREFIX, (_req: Express.Request, res: Express.Response) => {
 //   res.json({ message: "Hello, World!" });

@@ -8,21 +8,15 @@ dotenv.config();
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET!;
 const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
-export const signup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, role } = req.body;
 
     if (!email || !password || !role) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Email, password, and role are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Email, password, and role are required",
+      });
     }
 
     // First, check if user already exists
@@ -63,25 +57,19 @@ export const signup = async (
       { expiresIn: "7d" },
     );
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "User created successfully",
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    });
   } catch (error) {
     (error as Error & { status?: number }).status = 500;
     return next(error);
   }
 };
 
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -130,14 +118,12 @@ export const login = async (
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Login successful",
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    });
   } catch (error) {
     next(error);
   }
@@ -157,3 +143,8 @@ export const login = async (
 //     next(error);
 //   }
 // };
+
+export default {
+  signup,
+  login,
+};
