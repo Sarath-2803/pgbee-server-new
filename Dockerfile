@@ -6,6 +6,6 @@ COPY . .
 
 RUN npm i
 
-EXPOSE 8000
+EXPOSE 80
 
 CMD ["npm", "run", "dev"]
