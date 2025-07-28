@@ -1,6 +1,5 @@
-import { Student, Owner, User, Role } from "@/models";
+import { Student, Owner, User, Role, Hostel } from "@/models";
 
-// Role-User relationship (bidirectional)
 Role.hasOne(User, {
   foreignKey: {
     name: "roleId",
@@ -31,4 +30,19 @@ User.hasOne(Student, {
     allowNull: false,
   },
   foreignKeyConstraint: true,
+});
+
+User.hasMany(Hostel, {
+  foreignKey: {
+    name: "userId",
+    allowNull: true,
+  },
+  foreignKeyConstraint: true,
+});
+
+Hostel.belongsTo(User, {
+  foreignKey: {
+    name: "userId",
+    allowNull: true,
+  },
 });

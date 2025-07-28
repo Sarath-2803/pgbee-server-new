@@ -1,4 +1,4 @@
-import { ownerController } from "@/controllers";
+import ownerController from "@/controllers/owner-controller";
 
 import { Router } from "express";
 
