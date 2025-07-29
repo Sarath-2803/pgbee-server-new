@@ -159,8 +159,41 @@ const updateAmmenities = async (req: Request, res: Response) => {
   }
 };
 
+const deleteAmmenities = async (req: Request, res: Response) => {
+  try {
+    const hostelId = req.params.id;
+    if (!hostelId) {
+      return res.status(400).json({
+        ok: false,
+        message: "Hostel ID is required",
+      });
+    }
+    const ammenities = await Ammenities.findOne({ where: { hostelId } });
+    if (!ammenities) {
+      return res.status(404).json({
+        ok: false,
+        message: "Ammenities not found for this hostel",
+      });
+    }
+
+    await ammenities.destroy();
+
+    res.status(200).json({
+      ok: true,
+      message: "Ammenities deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting ammenities:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Failed to delete ammenities",
+    });
+  }
+};
+
 export default {
   createAmmenities,
   getAmmenitiesHostel,
   updateAmmenities,
+  deleteAmmenities,
 };

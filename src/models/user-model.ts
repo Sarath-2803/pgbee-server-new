@@ -4,7 +4,7 @@ import { sequelize } from "@/utils";
 import bcrypt from "bcryptjs";
 
 // Import Role type for association methods
-import type Role from "./role-model";
+import { Role } from "@/models";
 
 interface UserAttributes {
   id?: string;
