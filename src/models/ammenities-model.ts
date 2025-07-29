@@ -13,6 +13,13 @@ interface AmmenitiesAttributes {
   firstAid?: boolean;
   workspace?: boolean;
   security?: boolean;
+  currentBill?: boolean;
+  waterBill?: boolean;
+  food?: boolean;
+  furniture?: boolean;
+  bed?: boolean;
+  water?: boolean;
+  studentsCount?: number;
   hostelId?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -41,6 +48,13 @@ class Ammenities
   public firstAid?: boolean;
   public workspace?: boolean;
   public security?: boolean;
+  public currentBill?: boolean;
+  public waterBill?: boolean;
+  public food?: boolean;
+  public furniture?: boolean;
+  public bed?: boolean;
+  public water?: boolean;
+  public studentsCount?: number;
   public hostelId?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -97,6 +111,35 @@ Ammenities.init(
     security: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+    },
+    currentBill: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    waterBill: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    food: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    furniture: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    bed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    water: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    studentsCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
     hostelId: {
       type: DataTypes.UUID,
