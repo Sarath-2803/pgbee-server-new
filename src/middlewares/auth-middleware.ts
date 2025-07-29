@@ -7,11 +7,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export const authorize = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const authorize = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let token;
 
@@ -55,3 +51,5 @@ export const authorize = async (
     res.status(401).json({ message: "Unauthorized access" });
   }
 };
+
+export default authorize;

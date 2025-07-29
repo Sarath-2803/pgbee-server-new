@@ -15,7 +15,7 @@ dotenv.config();
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET!;
 const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
-export const refreshToken = async (
+const refreshToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -85,3 +85,5 @@ export const refreshToken = async (
     next(error);
   }
 };
+
+export default refreshToken;

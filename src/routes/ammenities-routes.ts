@@ -1,6 +1,6 @@
 import { Router } from "express";
-import ammenitiesController from "@/controllers/ammenities-controller";
-import { authorize } from "@/middlewares/auth-middleware";
+import { ammenitiesController } from "@/controllers";
+import { authorize } from "@/middlewares";
 
 const ammenitiesRouter = Router();
 
