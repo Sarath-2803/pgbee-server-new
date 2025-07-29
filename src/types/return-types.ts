@@ -11,7 +11,7 @@ type NestedObject = {
     | NestedObject[];
 };
 
-type RequestResponse = {
+type SuccessResponse = {
   ok: boolean;
   message: string;
   data: {
@@ -19,4 +19,10 @@ type RequestResponse = {
   };
 };
 
-export default RequestResponse;
+type ErrorResponse = {
+  ok: boolean;
+  message: string;
+  data: null;
+};
+
+export type { SuccessResponse, ErrorResponse };
