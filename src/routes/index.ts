@@ -2,6 +2,14 @@ import hostelRouter from "./hostel-routes";
 import authRouter from "./auth-routes";
 import reviewRouter from "./review-routes";
 import ammenitiesRouter from "./ammenities-routes";
-export * from "./owner-routes";
+import ownerRouter from "./owner-routes";
+import docsRouter from "./docs-routes";
 
-export default { authRouter, hostelRouter, reviewRouter, ammenitiesRouter };
+export {
+  authRouter,
+  hostelRouter,
+  reviewRouter,
+  ammenitiesRouter,
+  ownerRouter,
+  docsRouter,
+};
