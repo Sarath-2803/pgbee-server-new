@@ -11,7 +11,6 @@ interface UserAttributes {
   name?: string;
   email: string;
   password: string;
-  role: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,7 +31,6 @@ class User
   public name!: string;
   public email!: string;
   public password!: string;
-  public role!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -83,10 +81,6 @@ User.init(
         const hashedPassword = bcrypt.hashSync(value, 10);
         this.setDataValue("password", hashedPassword);
       },
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
   },
   {
