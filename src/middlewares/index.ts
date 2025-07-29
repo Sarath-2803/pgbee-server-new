@@ -1,5 +1,23 @@
 import authorize from "./auth-middleware";
-import ErrorHandler, { asyncErrorHandler } from "./error-handler";
+import {
+  AppError,
+  ErrorHandler,
+  errorHandler,
+  notFoundHandler,
+  asyncHandler,
+  handleUncaughtException,
+  handleUnhandledRejection,
+} from "./error-middleware";
+import { requestLogger } from "./request-logger";
 
-export default ErrorHandler;
-export { authorize, asyncErrorHandler };
+export {
+  authorize,
+  AppError,
+  ErrorHandler,
+  errorHandler,
+  notFoundHandler,
+  asyncHandler,
+  handleUncaughtException,
+  handleUnhandledRejection,
+  requestLogger,
+};

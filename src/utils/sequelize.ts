@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import { Logger } from "@/utils";
 
 const sequelize = new Sequelize(
   process.env.DB_NAME || "database",
@@ -12,17 +13,15 @@ const sequelize = new Sequelize(
   },
 );
 const connect = async () => {
-  console.log(
+  Logger.info(
     `Database connection: ${process.env.DB_HOST || "localhost"}://${process.env.DB_USER || "user"}:${process.env.DB_PASSWORD || "password"}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "database"}`,
   );
+
   try {
     await sequelize.authenticate();
-    console.log(
-      "Connection to the database has been established successfully.",
-    );
+    Logger.success("Connected to database successfully");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
-    throw error;
+    Logger.error("Error connecting to the database", error);
   }
 };
 
