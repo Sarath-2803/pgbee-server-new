@@ -34,9 +34,9 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
       name,
       email,
       password,
+      roleId: userRole.id,
     });
-
-    await newUser.setRole(userRole);
+    await newUser.save();
 
     const accessToken = jwt.sign(
       {
@@ -85,6 +85,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         .json({ success: false, message: "User not found" });
     }
 
+    console.log("isPasswordValid:", await user.verifyPassword(password));
     const isPasswordValid = await user.verifyPassword(password);
     if (!isPasswordValid) {
       return res
