@@ -1,4 +1,3 @@
-import { sequelize } from "@/utils";
 import {
   User,
   Role,
@@ -165,7 +164,6 @@ const seedDatabase = async () => {
   } catch (error) {
     Logger.error("Error seeding database:", error as unknown as Error);
   } finally {
-    await sequelize.close();
     Logger.info("Database connection closed.");
   }
 };

@@ -4,7 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import "tsconfig-paths/register";
 import cors from "cors";
-import { seed } from "@/utils";
+// import { seed } from "@/utils";
 import { connect, Logger } from "@/utils";
 import {
   authRouter,
@@ -47,7 +47,7 @@ app.use(
 );
 
 await connect();
-seed();
+// seed();
 const router = express.Router();
 
 router.use("/auth", authRouter);
