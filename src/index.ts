@@ -24,7 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
-
 const router = express.Router();
 
 router.use("/auth", authRouter);
