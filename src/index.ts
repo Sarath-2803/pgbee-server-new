@@ -4,6 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import "tsconfig-paths/register";
 import cors from "cors";
+import { seed } from "@/utils";
 import { connect, Logger } from "@/utils";
 import {
   authRouter,
@@ -22,16 +23,6 @@ import {
   requestLogger,
 } from "@/middlewares";
 import { googleAuthController } from "@/controllers";
-import {
-  User,
-  Role,
-  Owner,
-  Hostel,
-  Review,
-  Student,
-  Ammenities,
-} from "@/models";
-import "@/config/passport";
 
 handleUncaughtException();
 handleUnhandledRejection();
@@ -55,15 +46,8 @@ app.use(
   }),
 );
 
-await Role.sync();
-await User.sync();
-await Owner.sync();
-await Hostel.sync();
-await Review.sync();
-await Student.sync();
-await Ammenities.sync();
-
 await connect();
+seed();
 const router = express.Router();
 
 router.use("/auth", authRouter);
