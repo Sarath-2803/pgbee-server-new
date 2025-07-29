@@ -1,3 +1,3 @@
-import type { SuccessResponse, ErrorResponse } from "./response-types";
+import type { SuccessResponse, ErrorResponse } from "./return-types";
 
 export type { SuccessResponse, ErrorResponse };

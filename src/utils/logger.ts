@@ -26,15 +26,21 @@ export class Logger {
     return JSON.stringify(logEntry) + "\n";
   }
 
-  private static writeToFile(filename: string, content: string): void {
+  private static async writeToFile(
+    filename: string,
+    content: string,
+  ): Promise<void> {
     const filePath = path.join(this.logDir, filename);
-    fs.appendFileSync(filePath, content);
+    try {
+      await fs.promises.appendFile(filePath, content);
+    } catch (error) {
+      console.error(`Failed to write to log file ${filePath}:`, error);
+    }
   }
-
   static info(message: string, meta?: Record<string, unknown>): void {
     const logEntry = this.formatLog("INFO", message, meta);
     console.log(`ℹ️  ${message}`, meta ? meta : "");
-    this.writeToFile("app.log", logEntry);
+    this.writeToFile("app.log", logEntry).catch(console.error);
   }
 
   static error(message: string, error?: Error | Record<string, unknown>): void {

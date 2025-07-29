@@ -52,7 +52,7 @@ const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
   if (!ammenities) {
     throw new AppError("failed to create ammenities", 500, true);
   }
-  ResponseHandler.success(res, "Ammenities created successfully", 201);
+  ResponseHandler.success(res, "Amenities created successfully", {}, 201);
 });
 
 const getAmmenitiesHostel = async (req: Request, res: Response) => {
@@ -69,7 +69,7 @@ const getAmmenitiesHostel = async (req: Request, res: Response) => {
     if (!ammenities) {
       return res.status(404).json({
         ok: false,
-        message: "Ammenities not found for this hostel",
+        message: "Amenities not found for this hostel",
       });
     }
 
@@ -78,10 +78,10 @@ const getAmmenitiesHostel = async (req: Request, res: Response) => {
       ammenities,
     });
   } catch (error) {
-    console.error("Error fetching ammenities:", error);
+    console.error("Error fetching amenities:", error);
     res.status(500).json({
       ok: false,
-      message: "Failed to fetch ammenities",
+      message: "Failed to fetch amenities",
     });
   }
 };
