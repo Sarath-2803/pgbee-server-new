@@ -1,6 +1,6 @@
 import { Router } from "express";
-import hostelController from "@/controllers/hostel-controller";
-import { authorize } from "@/middlewares/auth-middleware";
+import { hostelController } from "@/controllers";
+import { authorize } from "@/middlewares";
 
 const hostelRouter = Router();
 

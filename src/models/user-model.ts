@@ -8,6 +8,7 @@ import type Role from "./role-model";
 
 interface UserAttributes {
   id?: string;
+  name?: string;
   email: string;
   password: string;
   role: string;
@@ -28,6 +29,7 @@ class User
   implements UserAttributes
 {
   public id!: string;
+  public name!: string;
   public email!: string;
   public password!: string;
   public role!: string;
@@ -61,6 +63,10 @@ User.init(
       defaultValue: () => uuid(),
       primaryKey: true,
       allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     email: {
       type: DataTypes.STRING,

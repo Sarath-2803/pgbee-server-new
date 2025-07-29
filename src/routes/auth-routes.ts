@@ -1,16 +1,14 @@
 import { Router } from "express";
-import { authorize } from "@/middlewares/auth-middleware";
-import { refreshToken } from "@/controllers/token-controller";
-import googleAuthController from "@/controllers/google-auth-controller";
-import authController from "@/controllers/user-auth-controller";
+import { authorize } from "@/middlewares";
+import { refreshToken } from "@/controllers";
+import { googleAuthController } from "@/controllers";
+import { authController } from "@/controllers";
 
 const authRouter = Router();
 
 authRouter.post("/login", authController.login);
 
 authRouter.post("/signup", authController.signup);
-
-// authRouter.post('/logout',signout);
 
 authRouter.post("/token/refresh", refreshToken);
 

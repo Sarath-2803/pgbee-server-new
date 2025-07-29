@@ -1,0 +1,245 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PGBee API",
+    "description": "API for PGBee Hostel Booking Application",
+    "version": "1.0.0",
+    "contact": {
+      "name": "PGBee Support",
+      "email": "support@pgbee.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["student", "owner"]
+                  }
+                },
+                "required": ["email", "password", "role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/hostels": {
+      "get": {
+        "tags": ["Hostels"],
+        "summary": "Get all hostels",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of hostels"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Hostels"],
+        "summary": "Create a new hostel",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostelName": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "rent": {
+                    "type": "number"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": ["male", "female", "mixed"]
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "hostelName",
+                  "phone",
+                  "address",
+                  "rent",
+                  "gender",
+                  "location"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hostel created successfully"
+          }
+        }
+      }
+    },
+    "/reviews/create": {
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Create a review",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostelId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": ["hostelId", "rating"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created successfully"
+          }
+        }
+      }
+    },
+    "/ammenities/create": {
+      "post": {
+        "tags": ["Amenities"],
+        "summary": "Create amenities for a hostel",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hostelId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "wifi": {
+                    "type": "boolean"
+                  },
+                  "ac": {
+                    "type": "boolean"
+                  },
+                  "kitchen": {
+                    "type": "boolean"
+                  },
+                  "parking": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["hostelId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Amenities created successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

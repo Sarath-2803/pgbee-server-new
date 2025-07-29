@@ -10,16 +10,15 @@ const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
 const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!email || !password || !role) {
+    if (!email || !password || !role || !name) {
       return res.status(400).json({
         success: false,
-        message: "Email, password, and role are required",
+        message: "Email, password, role and name are required",
       });
     }
 
-    // First, check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       return res
@@ -32,6 +31,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
     if (!userRole) userRole = await Role.createRole({ name: role });
 
     const newUser = await User.create({
+      name,
       email,
       password,
       role,
