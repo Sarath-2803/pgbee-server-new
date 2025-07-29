@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authorize } from "@/middlewares";
 import { refreshToken } from "@/controllers";
 import { googleAuthController } from "@/controllers";
 import { authController } from "@/controllers";
@@ -12,7 +11,6 @@ authRouter.post("/signup", authController.signup);
 
 authRouter.post("/token/refresh", refreshToken);
 
-//google routes
 authRouter.get("/google", googleAuthController.googlelogin);
 
 authRouter.get(
@@ -20,9 +18,5 @@ authRouter.get(
   googleAuthController.googleCallback,
   googleAuthController.googleSuccess,
 );
-
-authRouter.get("/test", authorize, (req, res) => {
-  res.json({ message: "Test route is working" });
-});
 
 export default authRouter;

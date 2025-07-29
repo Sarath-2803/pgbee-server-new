@@ -2,7 +2,7 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { v4 as uuid } from "uuid";
 import { sequelize } from "@/utils";
 
-import type User from "./user-model";
+import { User } from "@/models";
 
 interface HostelAttributes {
   id?: string;

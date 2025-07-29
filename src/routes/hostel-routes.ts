@@ -4,10 +4,10 @@ import { authorize } from "@/middlewares";
 
 const hostelRouter = Router();
 
+hostelRouter.post("/", authorize, hostelController.regHostel);
 hostelRouter.get("/", authorize, hostelController.getAllHostelsStudent);
 hostelRouter.get("/user", authorize, hostelController.getAllHostelsOwner);
-hostelRouter.post("/hostel", authorize, hostelController.regHostel);
-hostelRouter.put("/hostel/:id", authorize, hostelController.updateHostel);
-hostelRouter.delete("/hostel/:id", authorize, hostelController.deleteHostel);
+hostelRouter.put("/:id", authorize, hostelController.updateHostel);
+hostelRouter.delete("/:id", authorize, hostelController.deleteHostel);
 
 export default hostelRouter;
