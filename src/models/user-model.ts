@@ -7,6 +7,7 @@ import { Role } from "@/models";
 
 interface UserAttributes {
   id?: string;
+  name: string;
   email: string;
   password: string;
   roleId?: string;
@@ -27,6 +28,7 @@ class User
   implements UserAttributes
 {
   public id!: string;
+  public name!: string; // Assuming you want to add a name field
   public email!: string;
   public password!: string;
   public roleId?: string;
@@ -59,6 +61,10 @@ User.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     email: {
