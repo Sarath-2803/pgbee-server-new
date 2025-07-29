@@ -31,10 +31,10 @@ router.use("/hostel", authorize, hostelRouter);
 router.use("/review", authorize, reviewRouter);
 router.use("/ammenities", authorize, ammenitiesRouter);
 router.use("/owner", authorize, ownerRouter);
-router.use("/docs", docsRouter);
 
 const ROUTE_PREFIX = "/api/v1";
 app.use(ROUTE_PREFIX, router);
+app.use("/", docsRouter);
 connect();
 
 app.listen(port, () => {
