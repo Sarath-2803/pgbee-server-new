@@ -36,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
+await connect();
 const router = express.Router();
 
 router.use("/auth", authRouter);
@@ -44,12 +45,11 @@ router.use("/review", authorize, reviewRouter);
 router.use("/ammenities", authorize, ammenitiesRouter);
 router.use("/owner", authorize, ownerRouter);
 
-const ROUTE_PREFIX = "/api/v1";
-app.use(ROUTE_PREFIX, router);
+app.use(router);
 app.use("/", docsRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
-connect();
+import "./seeder.ts";
 
 app.listen(port, () => {
   Logger.info(`Server is running on port ${port}`, {
