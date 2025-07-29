@@ -31,6 +31,7 @@ app.use(ROUTE_PREFIX + "/auth", routes.authRouter);
 app.use(ROUTE_PREFIX + "/hostel", routes.hostelRouter);
 app.use(ROUTE_PREFIX + "/review", routes.reviewRouter);
 app.use(ROUTE_PREFIX + "/ammenities", routes.ammenitiesRouter);
+app.use(ROUTE_PREFIX + "/captcha", routes.captchaRouter);
 
 // RapiDoc API Documentation route
 app.get("/docs", (req: Express.Request, res: Express.Response) => {
