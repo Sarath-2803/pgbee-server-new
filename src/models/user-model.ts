@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/utils";
 import bcrypt from "bcryptjs";
@@ -8,9 +7,9 @@ import { Role } from "@/models";
 
 interface UserAttributes {
   id?: string;
-  name?: string;
   email: string;
   password: string;
+  roleId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,9 +27,9 @@ class User
   implements UserAttributes
 {
   public id!: string;
-  public name!: string;
   public email!: string;
   public password!: string;
+  public roleId?: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -39,7 +38,7 @@ class User
   public getRole!: () => Promise<Role>;
 
   public async verifyPassword(password: string): Promise<boolean> {
-    return await bcrypt.compare(password, this.password);
+    return await bcrypt.compare(password, this.dataValues.password);
   }
 
   public static async findByEmail(email: string): Promise<User | null> {
@@ -58,13 +57,9 @@ User.init(
   {
     id: {
       type: DataTypes.UUID,
-      defaultValue: () => uuid(),
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     email: {
       type: DataTypes.STRING,

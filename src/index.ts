@@ -46,16 +46,15 @@ app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-await connect();
-
-await User.sync();
 await Role.sync();
+await User.sync();
 await Owner.sync();
 await Hostel.sync();
-await Student.sync();
 await Review.sync();
+await Student.sync();
 await Ammenities.sync();
 
+await connect();
 const router = express.Router();
 
 router.use("/auth", authRouter);
