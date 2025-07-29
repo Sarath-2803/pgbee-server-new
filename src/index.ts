@@ -21,6 +21,15 @@ import {
   requestLogger,
 } from "@/middlewares";
 import { googleAuthController } from "@/controllers";
+import {
+  User,
+  Role,
+  Owner,
+  Hostel,
+  Review,
+  Student,
+  Ammenities,
+} from "@/models";
 import "@/config/passport";
 
 handleUncaughtException();
@@ -36,7 +45,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
+
 await connect();
+
+await User.sync();
+await Role.sync();
+await Owner.sync();
+await Hostel.sync();
+await Student.sync();
+await Review.sync();
+await Ammenities.sync();
+
 const router = express.Router();
 
 router.use("/auth", authRouter);
@@ -49,7 +68,6 @@ app.use(router);
 app.use("/", docsRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
-import "./seeder.ts";
 
 app.listen(port, () => {
   Logger.info(`Server is running on port ${port}`, {

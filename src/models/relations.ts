@@ -16,14 +16,6 @@ Role.hasOne(User, {
   foreignKeyConstraint: true,
 });
 
-User.belongsTo(Role, {
-  foreignKey: {
-    name: "roleId",
-    allowNull: true,
-  },
-  foreignKeyConstraint: true,
-});
-
 User.hasOne(Owner, {
   foreignKey: {
     name: "userId",
