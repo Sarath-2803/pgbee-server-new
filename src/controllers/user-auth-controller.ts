@@ -12,10 +12,10 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!email || !password || !role || !name) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email, password, role and name are required",
+        message: "Email, password are required",
       });
     }
 
@@ -34,7 +34,6 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
       name,
       email,
       password,
-      role,
     });
 
     await newUser.setRole(userRole);
