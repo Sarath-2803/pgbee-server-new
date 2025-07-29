@@ -1,71 +1,59 @@
 import { Ammenities } from "@/models";
 import { Request, Response } from "express";
+import { ResponseHandler } from "@/utils";
+import { asyncHandler, AppError } from "@/middlewares";
 
-const createAmmenities = async (req: Request, res: Response) => {
-  try {
-    const {
-      hostelId,
-      wifi,
-      ac,
-      kitchen,
-      parking,
-      laundry,
-      tv,
-      firstAid,
-      workspace,
-      security,
-    } = req.body;
+const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
+  const {
+    hostelId,
+    wifi,
+    ac,
+    kitchen,
+    parking,
+    laundry,
+    tv,
+    firstAid,
+    workspace,
+    security,
+  } = req.body;
 
-    if (
-      !hostelId ||
-      typeof wifi !== "boolean" ||
-      typeof ac !== "boolean" ||
-      typeof kitchen !== "boolean" ||
-      typeof parking !== "boolean" ||
-      typeof laundry !== "boolean" ||
-      typeof tv !== "boolean" ||
-      typeof firstAid !== "boolean" ||
-      typeof workspace !== "boolean" ||
-      typeof security !== "boolean"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required and must be of correct type",
-      });
-    }
-
-    const ammenities = await Ammenities.create({
-      hostelId,
-      wifi,
-      ac,
-      kitchen,
-      parking,
-      laundry,
-      tv,
-      firstAid,
-      workspace,
-      security,
-    });
-
-    if (!ammenities) {
-      return res.status(500).json({
-        ok: false,
-        message: "Failed to create ammenities",
-      });
-    }
-
-    res.status(201).json({
-      ok: true,
-      message: "Ammenities created successfully",
-    });
-  } catch (error) {
-    console.error("Error creating ammenities:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to create ammenities",
-    });
+  if (
+    !hostelId ||
+    typeof wifi !== "boolean" ||
+    typeof ac !== "boolean" ||
+    typeof kitchen !== "boolean" ||
+    typeof parking !== "boolean" ||
+    typeof laundry !== "boolean" ||
+    typeof tv !== "boolean" ||
+    typeof firstAid !== "boolean" ||
+    typeof workspace !== "boolean" ||
+    typeof security !== "boolean"
+  ) {
+    throw new AppError(
+      "All fields are required and must be of correct type",
+      400,
+      true,
+    );
   }
-};
+
+  const ammenities = await Ammenities.create({
+    hostelId,
+    wifi,
+    ac,
+    kitchen,
+    parking,
+    laundry,
+    tv,
+    firstAid,
+    workspace,
+    security,
+  });
+
+  if (!ammenities) {
+    throw new AppError("failed to create ammenities", 500, true);
+  }
+  ResponseHandler.success(res, "Ammenities created successfully", 201);
+});
 
 const getAmmenitiesHostel = async (req: Request, res: Response) => {
   try {
