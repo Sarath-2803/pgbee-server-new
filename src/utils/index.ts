@@ -1,2 +1,4 @@
 import sequelize, { connect } from "./sequelize";
-export { sequelize, connect };
+import docs from "./docs";
+import apiSpec from "./api-spec";
+export { sequelize, connect, docs, apiSpec };
