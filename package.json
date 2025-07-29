@@ -21,7 +21,7 @@
     "./**/*.{js,ts}": [
       "eslint  --fix"
     ],
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": "npx prettier --write --ignore-unknown"
   },
   "keywords": [],
   "author": "",
