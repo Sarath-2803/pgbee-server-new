@@ -45,6 +45,7 @@ const errorHandler = (
     | ErrorHandler,
   req: Request,
   res: Response,
+  _next: NextFunction,
 ): void => {
   let statusCode = 500;
   let message = "Internal Server Error";
