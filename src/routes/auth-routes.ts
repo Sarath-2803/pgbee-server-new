@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authorize } from "@/middlewares";
 import { refreshToken } from "@/controllers";
 import { googleAuthController } from "@/controllers";
 import { authController } from "@/controllers";
@@ -10,7 +9,7 @@ authRouter.post("/login", authController.login);
 
 authRouter.post("/signup", authController.signup);
 
-authRouter.post("/token/refresh", authorize, refreshToken);
+authRouter.post("/token/refresh", refreshToken);
 
 authRouter.get("/google", googleAuthController.googlelogin);
 
