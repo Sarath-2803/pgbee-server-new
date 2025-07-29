@@ -10,8 +10,6 @@ authRouter.post("/login", authController.login);
 
 authRouter.post("/signup", authController.signup);
 
-// authRouter.post('/logout',signout);
-
 authRouter.post("/token/refresh", refreshToken);
 
 //google routes

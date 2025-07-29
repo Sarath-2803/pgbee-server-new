@@ -4,6 +4,7 @@ import { sequelize } from "@/utils";
 
 interface ReviewAttributes {
   id?: string;
+  name?: string;
   date?: Date;
   rating?: number;
   text?: string;
@@ -16,6 +17,7 @@ interface ReviewAttributes {
 
 class Review extends Model<ReviewAttributes> implements ReviewAttributes {
   public id!: string;
+  public name?: string;
   public date?: Date;
   public text?: string;
   public image?: string;
@@ -44,6 +46,10 @@ Review.init(
       type: DataTypes.UUID,
       defaultValue: () => uuid(),
       primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     userId: {
       type: DataTypes.UUID,

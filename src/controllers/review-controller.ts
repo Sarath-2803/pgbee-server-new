@@ -3,12 +3,14 @@ import { Request, Response } from "express";
 
 const createReview = async (req: Request, res: Response) => {
   const userId: string = (req.user as User)?.id;
+  const name: string = (req.user as User)?.name;
   const { hostelId, rating, text, image, date } = req.body;
 
   try {
     const review = await Review.createReview({
       userId,
       hostelId,
+      name,
       rating,
       text,
       image,
