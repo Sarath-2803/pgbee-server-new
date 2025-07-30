@@ -1,17 +1,25 @@
 import { AppError, asyncHandler } from "@/middlewares";
-import { Enquiry, User } from "@/models";
+import { Enquiry, User, Student } from "@/models";
 import { ResponseHandler } from "@/utils";
 
 const createEnquiry = asyncHandler(async (req, res, _next) => {
-  const studentId: string = (req.user as User)?.id;
+  const userId: string = (req.user as User)?.id;
   const { hostelId, enquiry } = req.body;
+  const student = await Student.findOne({ where: { userId } });
+  const hostel = await Enquiry.findById(hostelId);
 
+  if (!student) {
+    throw new AppError("Student not found", 404, true);
+  }
   if (!hostelId || !enquiry) {
     throw new AppError("Hostel ID and enquiry are required", 400, true);
   }
+  if (!hostel) {
+    throw new AppError("Hostel not found", 404, true);
+  }
 
   const newEnquiry = await Enquiry.createEnquiry({
-    studentId,
+    studentId: student?.dataValues.id,
     hostelId,
     enquiry,
   });

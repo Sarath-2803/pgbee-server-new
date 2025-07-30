@@ -6,9 +6,13 @@ import reviewController from "./review-controller";
 import ammenitiesController from "./ammenities-controller";
 import refreshToken from "./token-controller.js";
 import cookieController from "./cookie-controller";
+import studentController from "./student-controller";
+import enquiryController from "./enquiry-controller";
 
 export {
+  enquiryController,
   googleAuthController,
+  studentController,
   cookieController,
   ownerController,
   authController,

@@ -6,17 +6,7 @@ import { ResponseHandler } from "@/utils";
 
 const ownerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  // hostelName: z.string().min(1, "Hostel name is required"),
   phone: z.string().min(10, "Phone number is required"),
-  // address: z.string().min(1, "Address is required"),
-  // curfew: z.boolean(),
-  // description: z.string().optional(),
-  // distance: z.number().min(0, "Distance must be a positive number"),
-  // location: z.string().min(1, "Location is required"),
-  // rent: z.number().min(0, "Rent must be a positive number"),
-  // files: z.string().optional(),
-  // bedrooms: z.number().min(1, "At least one bedroom is required"),
-  // bathrooms: z.number().min(1, "At least one bathroom is required"),
 });
 const updateOwnerSchema = ownerSchema.partial();
 
