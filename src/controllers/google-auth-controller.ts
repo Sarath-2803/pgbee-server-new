@@ -2,6 +2,7 @@ import passport from "passport";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { AppError } from "@/middlewares";
 
 // Define interface for authenticated user
 interface AuthenticatedUser {
@@ -19,7 +20,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
-  throw new Error("SESSION_SECRET environment variable must be set");
+  throw new AppError("SESSION_SECRET environment variable must be set");
 }
 
 const sessionConfig = {

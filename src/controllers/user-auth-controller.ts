@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
 import { Role, User } from "@/models";
 import jwt from "jsonwebtoken";
-import { asyncHandler } from "@/middlewares";
+import { AppError, asyncHandler } from "@/middlewares";
 import { ResponseHandler } from "@/utils";
 
 dotenv.config();
@@ -15,10 +15,10 @@ const signup = asyncHandler(
     const { name, email, password, role } = req.body;
 
     if (!email || !password || !role || !name)
-      throw new Error("Email, password, role and name are required");
+      throw new AppError("Email, password, role and name are required");
 
     const existingUser = await User.findByEmail(email);
-    if (existingUser) throw new Error("User with this email already exists");
+    if (existingUser) throw new AppError("User with this email already exists");
 
     //creating new user
     let userRole = await Role.findByName(role);
@@ -67,14 +67,15 @@ const login = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { email, password } = req.body;
 
-    if (!email || !password) throw new Error("Email and password are required");
+    if (!email || !password)
+      throw new AppError("Email and password are required");
 
     const user = await User.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found");
 
     const isPasswordValid = await user.verifyPassword(password);
     if (!isPasswordValid) {
-      throw new Error("Invalid password");
+      throw new AppError("Invalid password");
     }
 
     const accessToken = jwt.sign(
