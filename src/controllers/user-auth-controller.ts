@@ -1,30 +1,24 @@
 import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
-import { Role, User } from "@/models/index";
+import { Role, User } from "@/models";
 import jwt from "jsonwebtoken";
+import { AppError, asyncHandler } from "@/middlewares";
+import { ResponseHandler } from "@/utils";
 
 dotenv.config();
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET!;
 const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
-const signup = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const signup = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
     const { name, email, password, role } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, password are required",
-      });
-    }
+    if (!email || !password || !role || !name)
+      throw new AppError("Email, password, role and name are required");
 
     const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      return res
-        .status(409)
-        .json({ success: false, message: "User already exists" });
-    }
+    if (existingUser) throw new AppError("User with this email already exists");
 
     //creating new user
     let userRole = await Role.findByName(role);
@@ -56,41 +50,32 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
       { expiresIn: "7d" },
     );
 
-    res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    });
-  } catch (error) {
-    (error as Error & { status?: number }).status = 500;
-    return next(error);
-  }
-};
+    ResponseHandler.success(
+      res,
+      "User created successfully",
+      {
+        accessToken,
+        refreshToken,
+      },
+      201,
+    );
+  },
+);
 
-const login = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const login = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email and password are required" });
-    }
+    if (!email || !password)
+      throw new AppError("Email and password are required");
 
     const user = await User.findByEmail(email);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
+    if (!user) throw new AppError("User not found");
 
     console.log("isPasswordValid:", await user.verifyPassword(password));
     const isPasswordValid = await user.verifyPassword(password);
     if (!isPasswordValid) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid password" });
+      throw new AppError("Invalid password");
     }
 
     const accessToken = jwt.sign(
@@ -118,16 +103,17 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+    ResponseHandler.success(
+      res,
+      "User logged in successfully",
+      {
+        accessToken,
+        refreshToken,
+      },
+      200,
+    );
+  },
+);
 
 // export const signout = async (req: Request, res: Response, next: NextFunction) => {
 //   try {
