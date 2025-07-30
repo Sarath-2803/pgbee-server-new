@@ -10,7 +10,6 @@ interface HostelAttributes {
   phone?: string;
   address?: string;
   curfew?: boolean;
-  description?: string;
   distance?: number;
   location?: string;
   rent?: number;
@@ -30,7 +29,6 @@ class Hostel extends Model<HostelAttributes> implements HostelAttributes {
   public address?: string;
   public curfew?: boolean;
   public location?: string;
-  public description?: string;
   public distance?: number;
   public rent?: number;
   public gender?: string;
@@ -106,10 +104,6 @@ Hostel.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1,
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
     },
   },
   {

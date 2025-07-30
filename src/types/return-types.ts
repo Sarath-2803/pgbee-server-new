@@ -14,9 +14,7 @@ type NestedObject = {
 type SuccessResponse = {
   ok: boolean;
   message: string;
-  data: {
-    [key: string]: string | number | boolean | NestedObject;
-  };
+  data: NestedObject | NestedObject[] | Record<string, unknown>;
 };
 
 type ErrorResponse = {

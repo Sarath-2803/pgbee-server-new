@@ -52,7 +52,12 @@ const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
   if (!ammenities) {
     throw new AppError("failed to create ammenities", 500, true);
   }
-  ResponseHandler.success(res, "Amenities created successfully", {}, 201);
+  ResponseHandler.success(
+    res,
+    "Amenities created successfully",
+    ammenities as Ammenities as unknown as Record<string, unknown>,
+    201,
+  );
 });
 
 const getAmmenitiesHostel = asyncHandler(
