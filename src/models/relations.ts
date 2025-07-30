@@ -6,6 +6,7 @@ import {
   Hostel,
   Review,
   Ammenities,
+  Enquiry,
 } from "@/models";
 
 Role.hasOne(User, {
@@ -68,5 +69,15 @@ Hostel.hasOne(Ammenities, {
 });
 
 Ammenities.belongsTo(Hostel, {
+  foreignKey: "hostelId",
+});
+
+Student.belongsToMany(Hostel, {
+  through: Enquiry,
+  foreignKey: "studentId",
+});
+
+Hostel.belongsToMany(Student, {
+  through: Enquiry,
   foreignKey: "hostelId",
 });
