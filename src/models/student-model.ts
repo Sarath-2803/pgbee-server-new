@@ -5,12 +5,11 @@ import { sequelize } from "@/utils";
 interface StudentAttributes {
   id?: string;
   userName?: string;
-  dob?: Date;
-  country?: string;
-  permanentAddress?: string;
-  presentAddress?: string;
-  city?: string;
-  postalCode?: string;
+  name?: string;
+  dob?: string;
+  address?: string;
+  phoneNo?: string;
+  gender?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -26,12 +25,11 @@ class Student
 {
   declare id: string;
   declare userName?: string;
-  declare dob?: Date;
-  declare country?: string;
-  declare permanentAddress?: string;
-  declare presentAddress?: string;
-  declare city?: string;
-  declare postalCode?: string;
+  declare dob?: string;
+  declare name?: string;
+  declare address?: string;
+  declare phoneNo?: string;
+  declare gender?: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 
@@ -55,6 +53,10 @@ Student.init(
       allowNull: false,
       primaryKey: true,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     userName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -63,23 +65,15 @@ Student.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    country: {
+    gender: {
+      type: DataTypes.ENUM("Male", "Female"),
+      allowNull: false,
+    },
+    address: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    permanentAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    presentAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    city: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    postalCode: {
+    phoneNo: {
       type: DataTypes.STRING,
       allowNull: false,
     },
