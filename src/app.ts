@@ -11,6 +11,7 @@ import {
   ownerRouter,
   docsRouter,
   studentRouter,
+  enquiryRouter,
 } from "@/routes";
 import {
   authorize,
@@ -54,6 +55,7 @@ const createApp = async () => {
   router.use("/review", authorize, reviewRouter);
   router.use("/ammenities", authorize, ammenitiesRouter);
   router.use("/owner", authorize, ownerRouter);
+  router.use("/enquiry", enquiryRouter);
   router.use("/student", authorize, studentRouter);
 
   app.use(router);
