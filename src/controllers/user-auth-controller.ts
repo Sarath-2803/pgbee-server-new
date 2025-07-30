@@ -96,22 +96,15 @@ const login = asyncHandler(
   },
 );
 
-// export const signout = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     res.status(200).json({
-//       success: true,
-//       message: "Signed out successfully",
-//       type: "jwt",
-//       instructions: {
-//         action: "Remove token from client storage",
-//       }
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const signout = asyncHandler(
+  async (_req: Request, res: Response, _next: NextFunction) => {
+    res.clearCookie("jwt");
+    ResponseHandler.success(res, "User signed out successfully", {}, 200);
+  },
+);
 
 export default {
   signup,
   login,
+  signout,
 };
