@@ -28,10 +28,9 @@ const signup = asyncHandler(
       name,
       email,
       password,
-      role,
+      roleId: userRole.id,
     });
-
-    await newUser.setRole(userRole);
+    await newUser.save();
 
     const accessToken = jwt.sign(
       {
@@ -72,6 +71,7 @@ const login = asyncHandler(
     const user = await User.findByEmail(email);
     if (!user) throw new Error("User not found");
 
+    console.log("isPasswordValid:", await user.verifyPassword(password));
     const isPasswordValid = await user.verifyPassword(password);
     if (!isPasswordValid) {
       throw new Error("Invalid password");
