@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { AppError, asyncHandler } from "@/middlewares";
+import { ResponseHandler } from "@/utils";
 
 // Define interface for JWT payload
 interface JWTPayload {
@@ -15,22 +17,14 @@ dotenv.config();
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET!;
 const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
-const refreshToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
+const refreshToken = asyncHandler(
+  async (req: Request, res: Response, _next: NextFunction) => {
     const refreshToken =
       req.body.refreshToken ||
       (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-    if (!refreshToken) {
-      return res.status(401).json({
-        success: false,
-        message: "Refresh token is required",
-      });
-    }
+    if (!refreshToken)
+      throw new AppError("Refresh token is required", 401, true);
 
     jwt.verify(
       refreshToken,
@@ -39,20 +33,12 @@ const refreshToken = async (
         error: jwt.VerifyErrors | null,
         decoded: string | jwt.JwtPayload | undefined,
       ) => {
-        if (error) {
-          return res.status(403).json({
-            success: false,
-            message: "Invalid or expired refresh token",
-          });
-        }
+        if (error)
+          throw new AppError("Invalid or expired refresh token", 403, true);
 
         // Type guard to ensure decoded is our expected payload
-        if (!decoded || typeof decoded === "string") {
-          return res.status(403).json({
-            success: false,
-            message: "Invalid token payload",
-          });
-        }
+        if (!decoded || typeof decoded === "string")
+          throw new AppError("Invalid or expired refresh token", 403, true);
 
         const payload = decoded as JWTPayload;
 
@@ -74,16 +60,18 @@ const refreshToken = async (
           { expiresIn: "7d" },
         );
 
-        return res.status(200).json({
-          success: true,
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
-        });
+        ResponseHandler.success(
+          res,
+          "Tokens refreshed successfully",
+          {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          },
+          200,
+        );
       },
     );
-  } catch (error) {
-    next(error);
-  }
-};
+  },
+);
 
 export default refreshToken;

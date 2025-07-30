@@ -4,7 +4,16 @@ import {
   Profile,
   VerifyCallback,
 } from "passport-google-oauth20";
-import { User } from "@/models";
+import { Role, User } from "@/models";
+import crypto from "crypto";
+
+function generateRandomPassword(length = 12): string {
+  return crypto
+    .randomBytes(length)
+    .toString("base64")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, length);
+}
 
 passport.use(
   new GoogleStrategy(
@@ -31,10 +40,16 @@ passport.use(
           return done(null, existingUser);
         }
 
+        let userRole = await Role.findByName("user");
+        if (!userRole) {
+          userRole = await Role.createRole({ name: "user" });
+        }
+
         const newUser = await User.create({
+          name: profile.displayName || "User",
           email: email,
-          password: "1234",
-          role: "user",
+          password: generateRandomPassword(12),
+          roleId: userRole.id,
         });
 
         return done(null, newUser);
