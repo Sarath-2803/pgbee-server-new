@@ -6,6 +6,7 @@ import {
   Hostel,
   Ammenities,
   Review,
+  Enquiry,
 } from "@/models";
 import { faker } from "@faker-js/faker";
 import { Logger } from "@/utils"; // Assuming you have a Logger utility
@@ -26,6 +27,7 @@ const seedDatabase = async () => {
     await Review.sync();
     await Student.sync();
     await Ammenities.sync();
+    await Enquiry.sync();
     Logger.info("Database synchronized successfully.");
 
     // --- 1. Seed Roles ---
@@ -159,6 +161,59 @@ const seedDatabase = async () => {
     }
     await Review.bulkCreate(reviews as Review[]);
     Logger.info("Reviews seeded successfully.");
+
+    // --- 7. Seed Enquiries ---
+    console.log("Starting enquiries seeding...");
+    const count = 10;
+    interface EnquiryAttributes {
+      id?: string;
+      hostelId?: string;
+      studentId?: string;
+      enquiry?: boolean;
+      createdAt?: Date;
+      updatedAt?: Date;
+    }
+
+    // Get all existing students and hostels
+    const students = await Student.findAll();
+    const hostels_list = await Hostel.findAll();
+
+    if (students.length === 0) {
+      throw new Error("No students found. Please seed students first.");
+    }
+
+    if (hostels_list.length === 0) {
+      throw new Error("No hostels found. Please seed hostels first.");
+    }
+
+    console.log(
+      `Found ${students.length} students and ${hostels_list.length} hostels`,
+    );
+
+    const enquiries: EnquiryAttributes[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const randomStudent = faker.helpers.arrayElement(students);
+      const randomHostel = faker.helpers.arrayElement(hostels_list);
+
+      const enquiry: EnquiryAttributes = {
+        studentId: randomStudent.dataValues.id,
+        hostelId: randomHostel.dataValues.id,
+        enquiry: faker.datatype.boolean(), // Random true/false
+        createdAt: faker.date.between({
+          from: new Date("2024-01-01"),
+          to: new Date(),
+        }),
+        updatedAt: faker.date.recent({ days: 30 }),
+      };
+
+      enquiries.push(enquiry);
+    }
+
+    // Bulk create enquiries
+    await Enquiry.bulkCreate(enquiries);
+
+    console.log(`Successfully seeded ${count} enquiries`);
 
     Logger.info("✅ Database seeding completed!");
   } catch (error) {
