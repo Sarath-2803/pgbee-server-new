@@ -13,10 +13,10 @@ class Role
   extends Model<Optional<RoleAttributes, "id">>
   implements RoleAttributes
 {
-  public id!: string;
-  public name!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   public static async findByName(name: string): Promise<Role | null> {
     return await this.findOne({ where: { name } });

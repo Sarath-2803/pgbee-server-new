@@ -32,30 +32,11 @@ const signup = asyncHandler(
     });
     await newUser.save();
 
-    const accessToken = jwt.sign(
-      {
-        userId: newUser.id,
-        email: newUser.email,
-      },
-      JWT_SECRET,
-      { expiresIn: "15m" },
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        userId: newUser.id,
-        email: newUser.email,
-      },
-      REFRESH_TOKEN,
-      { expiresIn: "7d" },
-    );
-
     ResponseHandler.success(
       res,
       "User created successfully",
       {
-        accessToken,
-        refreshToken,
+        newUser,
       },
       201,
     );
@@ -80,8 +61,8 @@ const login = asyncHandler(
 
     const accessToken = jwt.sign(
       {
-        userId: user.id,
-        email: user.email,
+        userId: user.dataValues.id,
+        email: user.dataValues.email,
       },
       JWT_SECRET,
       { expiresIn: "15m" },
@@ -89,8 +70,8 @@ const login = asyncHandler(
 
     const refreshToken = jwt.sign(
       {
-        userId: user.id,
-        email: user.email,
+        userId: user.dataValues.id,
+        email: user.dataValues.email,
       },
       REFRESH_TOKEN,
       { expiresIn: "7d" },

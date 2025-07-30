@@ -19,9 +19,7 @@ const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
 const refreshToken = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const refreshToken =
-      req.body.refreshToken ||
-      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+    const refreshToken = req.cookies.jwt;
 
     if (!refreshToken)
       throw new AppError("Refresh token is required", 401, true);

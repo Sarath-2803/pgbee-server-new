@@ -24,16 +24,16 @@ class Student
   extends Model<StudentAttributes>
   implements StudentAttributes
 {
-  public id!: string;
-  public userName?: string;
-  public dob?: Date;
-  public country?: string;
-  public permanentAddress?: string;
-  public presentAddress?: string;
-  public city?: string;
-  public postalCode?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare userName?: string;
+  declare dob?: Date;
+  declare country?: string;
+  declare permanentAddress?: string;
+  declare presentAddress?: string;
+  declare city?: string;
+  declare postalCode?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   public static async findById(id: string): Promise<Student | null> {
     return await this.findOne({ where: { id } });

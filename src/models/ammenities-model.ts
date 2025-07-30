@@ -38,26 +38,26 @@ class Ammenities
   extends Model<AmmenitiesAttributes>
   implements AmmenitiesAttributes
 {
-  public id!: string;
-  public wifi?: boolean;
-  public ac?: boolean;
-  public kitchen?: boolean;
-  public parking?: boolean;
-  public laundry?: boolean;
-  public tv?: boolean;
-  public firstAid?: boolean;
-  public workspace?: boolean;
-  public security?: boolean;
-  public currentBill?: boolean;
-  public waterBill?: boolean;
-  public food?: boolean;
-  public furniture?: boolean;
-  public bed?: boolean;
-  public water?: boolean;
-  public studentsCount?: number;
-  public hostelId?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare wifi?: boolean;
+  declare ac?: boolean;
+  declare kitchen?: boolean;
+  declare parking?: boolean;
+  declare laundry?: boolean;
+  declare tv?: boolean;
+  declare firstAid?: boolean;
+  declare workspace?: boolean;
+  declare security?: boolean;
+  declare currentBill?: boolean;
+  declare waterBill?: boolean;
+  declare food?: boolean;
+  declare furniture?: boolean;
+  declare bed?: boolean;
+  declare water?: boolean;
+  declare studentsCount?: number;
+  declare hostelId?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
   public static async findById(id: string): Promise<Ammenities | null> {
     return await this.findOne({ where: { id } });
   }

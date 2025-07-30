@@ -30,10 +30,12 @@ interface OwnerCreationAttributes
 }
 
 class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
-  public id!: string;
-  public name?: string;
+  declare id: string;
+  declare name?: string;
+  declare phone?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
   // public hostelName?: string;
-  public phone?: string;
   // public address?: string;
   // public curfew?: boolean;
   // public location?: string;
@@ -43,8 +45,6 @@ class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
   // public bedrooms?: number;
   // public bathrooms?: number;
   // public files?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
   public static async findById(id: string): Promise<Owner | null> {
     return await this.findOne({ where: { id } });
   }

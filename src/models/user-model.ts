@@ -27,13 +27,13 @@ class User
   extends Model<UserAttributes>
   implements UserAttributes
 {
-  public id!: string;
-  public name!: string; // Assuming you want to add a name field
-  public email!: string;
-  public password!: string;
-  public roleId?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string; // Assuming you want to add a name field
+  declare email: string;
+  declare password: string;
+  declare roleId?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   // Association methods (added by Sequelize)
   public setRole!: (role: Role) => Promise<void>;
