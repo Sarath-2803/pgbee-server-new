@@ -23,6 +23,7 @@ import {
   requestLogger,
 } from "@/middlewares";
 import { googleAuthController } from "@/controllers";
+import "@/config/passport";
 
 handleUncaughtException();
 handleUnhandledRejection();

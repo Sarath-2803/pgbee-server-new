@@ -6,6 +6,9 @@ import {
 } from "passport-google-oauth20";
 import { Role, User } from "@/models";
 import crypto from "crypto";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 function generateRandomPassword(length = 12): string {
   return crypto
@@ -20,7 +23,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      callbackURL: "/api/v1/google/callback",
+      callbackURL: "/auth/google/callback",
     },
     async (
       accessToken: string,
@@ -54,6 +57,7 @@ passport.use(
 
         return done(null, newUser);
       } catch (error) {
+        console.error("Error in Google authentication:", error);
         return done(error, undefined);
       }
     },
