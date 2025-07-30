@@ -11,6 +11,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepare": "husky",
+    "seed": "npx tsx src/utils/seed.ts",
     "db:create": "npx sequelize-cli db:create",
     "db:migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
