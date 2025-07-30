@@ -10,6 +10,7 @@ interface StudentAttributes {
   address?: string;
   phoneNo?: string;
   gender?: string;
+  userId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -30,6 +31,7 @@ class Student
   declare address?: string;
   declare phoneNo?: string;
   declare gender?: string;
+  declare userId?: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 
