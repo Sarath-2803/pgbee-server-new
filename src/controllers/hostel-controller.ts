@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { Hostel, User } from "@/models";
 import { z } from "zod";
-import { ZodError } from "zod";
+import { AppError, asyncHandler } from "@/middlewares";
+import { ResponseHandler } from "@/utils";
 
 // Define authenticated user interface
 interface AuthenticatedUser {
@@ -34,122 +35,103 @@ const updateHostelSchema = hostelSchema.partial();
 
 type createHostelDTO = z.infer<typeof hostelSchema>;
 
-const regHostel = async (req: Request, res: Response) => {
-  try {
-    const hostelData: createHostelDTO = hostelSchema.parse(req.body);
-    const newHostel = await Hostel.createHostel(hostelData);
-    await newHostel.setUser(req.user?.id as string);
-    res.status(201).json({
-      success: true,
-      message: "Hostel created successfully",
-    });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({ errors: error.flatten() });
-    }
-    console.error("Error creating hostel:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+const regHostel = asyncHandler(async (req: Request, res: Response) => {
+  const hostelData: createHostelDTO = hostelSchema.parse(req.body);
+  const newHostel = await Hostel.createHostel(hostelData);
+  if (!newHostel) throw new AppError("Failed to create hostel", 500, true);
+  await newHostel.setUser(req.user?.id as string);
+  ResponseHandler.success(res, "Hostel created successfully", {}, 201);
+});
 
-const getHostelById = async (req: Request, res: Response) => {
-  try {
-    const hostelId = req.params.id;
-    const hostel = await Hostel.findById(hostelId);
-    if (!hostel) {
-      return res.status(404).json({ error: "Hostel not found" });
-    }
-    res.status(200).json(hostel);
-  } catch (error) {
-    console.error("Error fetching hostel:", error);
-    res.status(500).json({ error: "Internal server error" });
+const getHostelById = asyncHandler(async (req: Request, res: Response) => {
+  const hostelId = req.params.id;
+  const hostel = await Hostel.findById(hostelId);
+  if (!hostel) {
+    throw new AppError("Hostel not found", 404, true);
   }
-};
-const getAllHostelsStudent = async (req: Request, res: Response) => {
-  try {
+  ResponseHandler.success(res, "Hostel fetched successfully", { hostel }, 200);
+});
+
+const getAllHostelsStudent = asyncHandler(
+  async (req: Request, res: Response) => {
     const hostels = await Hostel.findAll();
-    res.status(200).json(hostels);
-  } catch (error) {
-    console.error("Error fetching hostels:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-const getAllHostelsOwner = async (req: Request, res: Response) => {
-  try {
-    const userId: string = (req.user as User)?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
-    const hostels = await Hostel.findAll({
-      where: { userId: userId },
-    });
     if (!hostels || hostels.length === 0) {
-      return res.status(404).json({ error: "No hostels found for this user" });
+      throw new AppError("No hostels found", 404, true);
     }
+    ResponseHandler.success(
+      res,
+      "Hostels fetched successfully",
+      { hostels },
+      200,
+    );
+  },
+);
 
-    res.status(200).json(hostels);
-  } catch (error) {
-    console.error("Error fetching hostels:", error);
-    res.status(500).json({ error: "Internal server error" });
+const getAllHostelsOwner = asyncHandler(async (req: Request, res: Response) => {
+  const userId: string = (req.user as User)?.id;
+
+  if (!userId) {
+    throw new AppError("User not authenticated", 401, true);
   }
-};
 
-const updateHostel = async (req: Request, res: Response) => {
-  try {
-    const userid: string = (req.user as User)?.id;
-    if (!userid) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
-    const hostelId = req.params.id;
-    if (!hostelId) {
-      return res.status(400).json({ error: "Hostel ID is required" });
-    }
-    const hostelData = updateHostelSchema.parse(req.body);
-    const hostel = await Hostel.findById(hostelId);
-    if (!hostel) {
-      return res.status(404).json({ error: "Hostel not found" });
-    }
-    const updatedHostel = await hostel.update(hostelData);
-    if (!updatedHostel) {
-      return res.status(500).json({ error: "Failed to update hostel" });
-    }
-    res.status(200).json({
-      message: "Hostel updated successfully",
-    });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({ errors: error.flatten() });
-    }
+  const hostels = await Hostel.findAll({
+    where: { userId: userId },
+  });
+  if (!hostels || hostels.length === 0) {
+    throw new AppError("No hostels found for this user", 404, true);
   }
-};
 
-const deleteHostel = async (req: Request, res: Response) => {
-  try {
-    const userid: string = (req.user as User)?.id;
-    if (!userid) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-    const hostelId = req.params.id;
-    if (!hostelId) {
-      return res.status(400).json({ error: "Hostel ID is required" });
-    }
-    const hostel = await Hostel.findById(hostelId);
-    if (!hostel) {
-      return res.status(404).json({ error: "Hostel not found" });
-    }
-    await hostel.destroy();
-    res.status(204).send({
-      message: "Hostel deleted successfully",
-    });
-  } catch (error) {
-    console.error(`Error deleting hostel with id ${req.params.id}`, error);
-    res.status(500).json({ error: "Internal server error" });
+  ResponseHandler.success(
+    res,
+    "Hostels fetched successfully",
+    { hostels },
+    200,
+  );
+});
+
+const updateHostel = asyncHandler(async (req: Request, res: Response) => {
+  const userid: string = (req.user as User)?.id;
+  if (!userid) {
+    throw new AppError("User not authenticated", 401, true);
   }
-};
+
+  const hostelId = req.params.id;
+  if (!hostelId) {
+    throw new AppError("Hostel ID is required", 400, true);
+  }
+  const hostelData = updateHostelSchema.parse(req.body);
+  const hostel = await Hostel.findById(hostelId);
+  if (!hostel) {
+    throw new AppError("Hostel not found", 404, true);
+  }
+  const updatedHostel = await hostel.update(hostelData);
+  if (!updatedHostel) {
+    throw new AppError("Failed to update hostel", 500, true);
+  }
+  ResponseHandler.success(
+    res,
+    "Hostel updated successfully",
+    { hostel: updatedHostel },
+    200,
+  );
+});
+
+const deleteHostel = asyncHandler(async (req: Request, res: Response) => {
+  const userid: string = (req.user as User)?.id;
+  if (!userid) {
+    throw new AppError("User not authenticated", 401, true);
+  }
+  const hostelId = req.params.id;
+  if (!hostelId) {
+    throw new AppError("Hostel ID is required", 400, true);
+  }
+  const hostel = await Hostel.findById(hostelId);
+  if (!hostel) {
+    throw new AppError("Hostel not found", 404, true);
+  }
+  await hostel.destroy();
+  ResponseHandler.success(res, "Hostel deleted successfully", {}, 204);
+});
 
 export default {
   regHostel,

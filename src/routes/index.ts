@@ -3,12 +3,15 @@ import authRouter from "./auth-routes";
 import reviewRouter from "./review-routes";
 import ammenitiesRouter from "./ammenities-routes";
 import captchaRouter from "./captcha-routes";
-export * from "./owner-routes";
+import ownerRouter from "./owner-routes";
+import docsRouter from "./docs-routes";
 
-export default {
+export {
   authRouter,
   hostelRouter,
   reviewRouter,
   ammenitiesRouter,
+  ownerRouter,
+  docsRouter,
   captchaRouter,
 };

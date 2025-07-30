@@ -1,160 +1,80 @@
+import { asyncHandler } from "@/middlewares";
 import { Review, User } from "@/models";
+import { ResponseHandler } from "@/utils";
 import { Request, Response } from "express";
 
-const createReview = async (req: Request, res: Response) => {
+const createReview = asyncHandler(async (req: Request, res: Response) => {
   const userId: string = (req.user as User)?.id;
   const name: string = (req.user as User)?.name;
   const { hostelId, rating, text, image, date } = req.body;
 
-  try {
-    const review = await Review.createReview({
-      userId,
-      hostelId,
-      name,
-      rating,
-      text,
-      image,
-      date,
-    });
-    if (!review) {
-      return res.status(400).json({
-        ok: false,
-        message: "Failed to create review",
-      });
-    }
-    res.status(201).json({
-      ok: true,
-      message: "Review created successfully",
-    });
-  } catch (error) {
-    console.error("Error creating review:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to create review",
-    });
-  }
-};
+  const review = await Review.createReview({
+    userId,
+    hostelId,
+    name,
+    rating,
+    text,
+    image,
+    date,
+  });
+  if (!review) throw new Error("Failed to create review");
+  ResponseHandler.success(res, "Review created successfully", {}, 201);
+});
 
-const getReview = async (req: Request, res: Response) => {
+const getReview = asyncHandler(async (req: Request, res: Response) => {
   const reviewId: string = req.params.id;
-  try {
-    const review = await Review.findByPk(reviewId);
-    if (review) {
-      res.status(200).json({
-        ok: true,
-        review,
-      });
-    } else {
-      res.status(404).json({
-        ok: false,
-        message: "Review not found",
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching review:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to fetch review",
-    });
-  }
-};
+  const review = await Review.findByPk(reviewId);
+  if (!review) throw new Error("Review not found");
+  ResponseHandler.success(res, "Review fetched successfully", { review }, 200);
+});
 
-const getReviewsHostel = async (req: Request, res: Response) => {
+const getReviewsHostel = asyncHandler(async (req: Request, res: Response) => {
   const hostelId: string = req.params.id;
-  try {
-    const reviews: Review[] = await Review.findAll({ where: { hostelId } });
-    if (reviews.length > 0) {
-      res.status(200).json({
-        ok: true,
-        reviews,
-      });
-    } else {
-      res.status(404).json({
-        ok: false,
-        message: "No reviews found for this hostel",
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to fetch reviews",
-    });
-  }
-};
 
-const getReviewsUser = async (req: Request, res: Response) => {
+  const reviews: Review[] = await Review.findAll({ where: { hostelId } });
+  if (reviews.length < 0) {
+    throw new Error("No reviews found for this hostel");
+  }
+  ResponseHandler.success(
+    res,
+    "Reviews fetched successfully",
+    { reviews },
+    200,
+  );
+});
+
+const getReviewsUser = asyncHandler(async (req: Request, res: Response) => {
   const userId: string = (req.user as User)?.id;
-  try {
-    const reviews: Review[] = await Review.findAll({ where: { userId } });
-    if (reviews.length > 0) {
-      res.status(200).json({
-        ok: true,
-        reviews,
-      });
-    } else {
-      res.status(404).json({
-        ok: false,
-        message: "No reviews found for this user",
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching user reviews:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to fetch user reviews",
-    });
+  const reviews: Review[] = await Review.findAll({ where: { userId } });
+  if (reviews.length < 0) {
+    throw new Error("No reviews found for this user");
   }
-};
+  ResponseHandler.success(
+    res,
+    "Reviews fetched successfully",
+    { reviews },
+    200,
+  );
+});
 
-const updateReview = async (req: Request, res: Response) => {
+const updateReview = asyncHandler(async (req: Request, res: Response) => {
   const reviewId: string = req.params.id;
   const { rating, text, image } = req.body;
-  try {
-    const review = await Review.findByPk(reviewId);
-    if (!review) {
-      return res.status(404).json({
-        ok: false,
-        message: "Review not found",
-      });
-    }
-    await review.update({ rating, text, image });
-    res.status(200).json({
-      ok: true,
-      message: "Review updated successfully",
-    });
-  } catch (error) {
-    console.error("Error updating review:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to update review",
-    });
-  }
-};
+  const review = await Review.findByPk(reviewId);
+  if (!review) throw new Error("Review not found");
+  const updatedReview = await review.update({ rating, text, image });
+  if (!updatedReview) throw new Error("Failed to update review");
+  ResponseHandler.success(res, "Review updated successfully", {}, 200);
+});
 
-const deleteReview = async (req: Request, res: Response) => {
+const deleteReview = asyncHandler(async (req: Request, res: Response) => {
   const reviewId: string = req.params.id;
-  try {
-    const review = await Review.findByPk(reviewId);
-    if (!review) {
-      return res.status(404).json({
-        ok: false,
-        message: "Review not found",
-      });
-    }
-    await review.destroy();
-    res.status(200).json({
-      ok: true,
-      message: "Review deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting review:", error);
-    res.status(500).json({
-      ok: false,
-      message: "Failed to delete review",
-    });
-  }
-};
+
+  const review = await Review.findByPk(reviewId);
+  if (!review) throw new Error("Review not found");
+  await review.destroy();
+  ResponseHandler.success(res, "Review deleted successfully", {}, 200);
+});
 
 export default {
   createReview,
