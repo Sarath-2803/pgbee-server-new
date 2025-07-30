@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { Owner } from "@/models";
 import { z } from "zod";
-import { ZodError } from "zod";
+import { AppError, asyncHandler } from "@/middlewares";
+import { ResponseHandler } from "@/utils";
 
 const ownerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -21,76 +22,58 @@ const updateOwnerSchema = ownerSchema.partial();
 
 type createOwnerDTO = z.infer<typeof ownerSchema>;
 
-const regOwner = async (req: Request, res: Response) => {
-  try {
-    const ownerData: createOwnerDTO = ownerSchema.parse(req.body);
-    const newOwner = await Owner.createOwner(ownerData);
-    res.status(201).json(newOwner);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({ errors: error.flatten() });
-    }
-    console.error("Error creating owner:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+const regOwner = asyncHandler(async (req: Request, res: Response) => {
+  const ownerData: createOwnerDTO = ownerSchema.parse(req.body);
+  const newOwner = await Owner.createOwner(ownerData);
+  if (!newOwner) throw new AppError("Failed to create owner", 500, true);
+  ResponseHandler.success(res, "Owner created successfully", {}, 201);
+});
 
-const getOwnerById = async (req: Request, res: Response) => {
-  try {
-    const ownerId = req.params.id;
-    const owner = await Owner.findById(ownerId);
-    if (!owner) {
-      return res.status(404).json({ error: "Owner not found" });
-    }
-    res.status(200).json(owner);
-  } catch (error) {
-    console.error("Error fetching owner:", error);
-    res.status(500).json({ error: "Internal server error" });
+const getOwnerById = asyncHandler(async (req: Request, res: Response) => {
+  const ownerId = req.params.id;
+  const owner = await Owner.findById(ownerId);
+  if (!owner) {
+    throw new AppError("Owner not found", 404, true);
   }
-};
-const getAllOwners = async (req: Request, res: Response) => {
-  try {
-    const owners = await Owner.findAll();
-    res.status(200).json(owners);
-  } catch (error) {
-    console.error("Error fetching owners:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-const updateOwner = async (req: Request, res: Response) => {
-  try {
-    const ownerId = req.params.id;
-    const ownerData = updateOwnerSchema.parse(req.body);
-    const owner = await Owner.findById(ownerId);
-    if (!owner) {
-      return res.status(404).json({ error: "Owner not found" });
-    }
-    const updatedOwner = await owner.update(ownerData);
-    res.status(200).json(updatedOwner);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({ errors: error.flatten() });
+  ResponseHandler.success(res, "Owner fetched successfully", { owner }, 200);
+});
 
-      console.error(`Error updating owner with id ${req.params.id}`, error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+const getAllOwners = asyncHandler(async (req: Request, res: Response) => {
+  const owners = await Owner.findAll();
+  if (!owners || owners.length === 0) {
+    throw new AppError("No owners found", 404, true);
   }
-};
+  ResponseHandler.success(res, "Owners fetched successfully", { owners }, 200);
+});
 
-const deleteOwner = async (req: Request, res: Response) => {
-  try {
-    const ownerId = req.params.id;
-    const owner = await Owner.findById(ownerId);
-    if (!owner) {
-      return res.status(404).json({ error: "Owner not found" });
-    }
-    await owner.destroy();
-    res.status(204).send();
-  } catch (error) {
-    console.error(`Error deleting owner with id${req.params.id}`, error);
-    res.status(500).json({ error: "Internal server error" });
+const updateOwner = asyncHandler(async (req: Request, res: Response) => {
+  const ownerId = req.params.id;
+  const ownerData = updateOwnerSchema.parse(req.body);
+  const owner = await Owner.findById(ownerId);
+  if (!owner) {
+    throw new AppError("Owner not found", 404, true);
   }
-};
+  const updatedOwner = await owner.update(ownerData);
+  if (!updatedOwner) {
+    throw new AppError("Failed to update owner", 500, true);
+  }
+  ResponseHandler.success(
+    res,
+    "Owner updated successfully",
+    { owner: updatedOwner },
+    200,
+  );
+});
+
+const deleteOwner = asyncHandler(async (req: Request, res: Response) => {
+  const ownerId = req.params.id;
+  const owner = await Owner.findById(ownerId);
+  if (!owner) {
+    throw new AppError("Owner not found", 404, true);
+  }
+  await owner.destroy();
+  ResponseHandler.success(res, "Owner deleted successfully", {}, 204);
+});
 
 export default {
   regOwner,
