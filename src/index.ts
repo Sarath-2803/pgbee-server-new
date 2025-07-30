@@ -4,7 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import "tsconfig-paths/register";
 import cors from "cors";
-// import { seed } from "@/utils";
+import cookieParser from "cookie-parser";
 import { connect, Logger } from "@/utils";
 import {
   authRouter,
@@ -34,6 +34,7 @@ const port = process.env.PORT || 3000;
 app.use(requestLogger);
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(session(googleAuthController.sessionConfig));
 app.use(passport.initialize());
@@ -48,7 +49,6 @@ app.use(
 );
 
 await connect();
-// seed();
 const router = express.Router();
 
 router.use("/auth", authRouter);

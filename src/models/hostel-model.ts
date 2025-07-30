@@ -23,21 +23,21 @@ interface HostelAttributes {
 }
 
 class Hostel extends Model<HostelAttributes> implements HostelAttributes {
-  public id!: string;
-  public hostelName?: string;
-  public phone?: string;
-  public address?: string;
-  public curfew?: boolean;
-  public location?: string;
-  public distance?: number;
-  public rent?: number;
-  public gender?: string;
-  public bedrooms?: number;
-  public bathrooms?: number;
-  public files?: string;
-  public userId?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare hostelName?: string;
+  declare phone?: string;
+  declare address?: string;
+  declare curfew?: boolean;
+  declare location?: string;
+  declare distance?: number;
+  declare rent?: number;
+  declare gender?: string;
+  declare bedrooms?: number;
+  declare bathrooms?: number;
+  declare files?: string;
+  declare userId?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
   public static async findById(id: string): Promise<Hostel | null> {
     return await this.findOne({ where: { id } });
   }

@@ -12,12 +12,12 @@ interface EnquiryAttributes {
 }
 
 class Enquiry extends Model<EnquiryAttributes> implements EnquiryAttributes {
-  public id!: string;
-  public hostelId?: string;
-  public studentId?: string;
-  public enquiry?: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare hostelId?: string;
+  declare studentId?: string;
+  declare enquiry?: boolean;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
   public static async findById(id: string): Promise<Enquiry | null> {
     return await this.findOne({ where: { id } });
   }
