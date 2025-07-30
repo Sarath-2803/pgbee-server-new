@@ -2,7 +2,8 @@ import passport from "passport";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { AppError } from "@/middlewares";
+import { AppError, asyncHandler } from "@/middlewares";
+import { ResponseHandler } from "@/utils";
 
 // Define interface for authenticated user
 interface AuthenticatedUser {
@@ -43,7 +44,7 @@ const googleCallback = passport.authenticate("google", {
   failureRedirect: "/login",
 });
 
-const googleSuccess = async (req: Request, res: Response) => {
+const googleSuccess = asyncHandler(async (req: Request, res: Response) => {
   if (req.user) {
     const user = req.user as AuthenticatedUser;
     const accessToken = jwt.sign(
@@ -71,36 +72,29 @@ const googleSuccess = async (req: Request, res: Response) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({
-      success: true,
-      message: "Google authentication successful",
-      accessToken,
-      refreshToken,
-    });
-  } else {
-    res.status(401).json({ success: false, message: "Authentication failed" });
+    ResponseHandler.success(
+      res,
+      "User authenticated successfully",
+      {
+        accessToken,
+        refreshToken,
+      },
+      200,
+    );
   }
-};
+});
 
 //signout function on google login
-const googleSignout = (req: Request, res: Response) => {
+const googleSignout = asyncHandler(async (req: Request, res: Response) => {
   req.logout((error) => {
     if (error) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Logout failed", error });
+      throw new AppError("Logout failed", 500, true);
     }
     if (req.session) {
       req.session.destroy((error: Error) => {
-        if (error) {
-          return res
-            .status(500)
-            .json({ success: false, message: "Logout failed", error });
-        }
+        if (error) throw new AppError("Session  failed", 500, true);
         res.clearCookie("connect.sid");
-        return res
-          .status(200)
-          .json({ success: true, message: "Logged out successfully" });
+        ResponseHandler.success(res, "User signed out successfully", {}, 200);
       });
     }
     res.status(200).json({
@@ -108,7 +102,7 @@ const googleSignout = (req: Request, res: Response) => {
       message: "Signed out successfully",
     });
   });
-};
+});
 
 export default {
   sessionConfig,
