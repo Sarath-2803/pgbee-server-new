@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 const app = await createApp();
 
 await connect();
-// import "./utils/seed";
+import "./utils/seed";
 app.listen(port, () => {
   Logger.info(`Server is running on port ${port}`, {
     environment: process.env.NODE_ENV || "development",

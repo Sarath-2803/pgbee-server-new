@@ -1,227 +1,294 @@
-import {
-  User,
-  Role,
-  Student,
-  Owner,
-  Hostel,
-  Ammenities,
-  Review,
-  Enquiry,
-} from "@/models";
-import { faker } from "@faker-js/faker";
-import { Logger } from "@/utils"; // Assuming you have a Logger utility
+import { sequelize } from "@/utils"; // Assuming your sequelize instance is exported from here
+import { User, Role, Owner, Hostel, Ammenities, Rent } from "@/models"; // Import all necessary models
+import fs from "fs";
+import path from "path";
+import csv from "csv-parser";
 
-// A utility function to get a random item from an array
-const getRandomItem = <T>(arr: T[]): T => {
-  return arr[Math.floor(Math.random() * arr.length)];
+// --- Interface for the CSV Row Data ---
+// Provides type safety for the data parsed from the CSV file.
+interface HostelCsvRow {
+  Timestamp: string;
+  "Hostel name ": string;
+  "Type of PG": string;
+  "owner's name  ": string;
+  "owner's phone number ": string;
+  "Owner's email address ": string;
+  "Address of the PG": string;
+  "Photo of the PG": string;
+  "Amenities ": string;
+  "Number  of sharing  ": string;
+  "Price for single room ": string;
+  "Price for single  room + attached bathroom ": string;
+  "Price for 2 sharing ": string;
+  "Price for 2 sharing + attached bathroom ": string;
+  "Price of 3 sharing ": string;
+  "Price for 3 sharing + attached bathroom ": string;
+  "Price of 3+ sharing ": string;
+  "Price for 3+ sharing and attached bathroom ": string;
+  "Curfew ": string;
+}
+
+// --- Helper function to clean phone numbers ---
+const sanitizePhoneNumber = (phone: string): string => {
+  if (!phone) return "";
+  // Removes all non-digit characters from the string
+  return phone.replace(/[^0-9]/g, "");
 };
 
+// --- Helper function to validate email format ---
+const isValidEmail = (email: string): boolean => {
+  if (!email) return false;
+  // A simple regex to check for a valid email structure.
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// --- Main Seeding Function ---
 const seedDatabase = async () => {
   try {
-    // Synchronize all models. Using { force: true } will drop the tables if they already exist.
-    // Be cautious with this in a production environment.
-    await Role.sync();
-    await User.sync();
-    await Owner.sync();
-    await Hostel.sync();
-    await Review.sync();
-    await Student.sync();
-    await Ammenities.sync();
-    await Enquiry.sync();
-    Logger.info("Database synchronized successfully.");
+    // Synchronize all models, dropping existing tables
+    // Use { force: true } only in development/seeding environments
+    console.log("Connecting to database and syncing models...");
+    await sequelize.sync({ force: true });
+    console.log("Database synced!");
 
     // --- 1. Seed Roles ---
-    await Role.bulkCreate([
-      { name: "student" },
-      { name: "owner" },
-      { name: "admin" },
-    ]);
-    const studentRole = await Role.findOne({ where: { name: "student" } });
-    const ownerRole = await Role.findOne({ where: { name: "owner" } });
-    Logger.info("Roles seeded successfully.");
+    // Create default roles that the system needs to function.
+    console.log("Seeding Roles...");
+    const ownerRole = await Role.create({ name: "owner" });
+    await Role.create({ name: "student" });
+    console.log("Roles seeded successfully.");
 
-    if (!studentRole || !ownerRole) {
-      throw new Error("Essential roles could not be created.");
-    }
-
-    // --- 2. Seed Users ---
-    const users = [];
-    // Create 10 student users
-    for (let i = 0; i < 10; i++) {
-      users.push({
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        password: "password123", // Password will be hashed by the model's hook
-        roleId: studentRole.dataValues.id,
-      });
-    }
-    // Create 5 owner users
-    for (let i = 0; i < 5; i++) {
-      users.push({
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        password: "password123",
-        roleId: ownerRole.dataValues.id,
-      });
-    }
-    const createdUsers = await User.bulkCreate(users);
-    const studentUsers = createdUsers.filter(
-      (u) => u.dataValues.roleId === studentRole.dataValues.id,
-    );
-    const ownerUsers = createdUsers.filter(
-      (u) => u.dataValues.roleId === ownerRole.dataValues.id,
-    );
-    Logger.info("Users seeded successfully.");
-
-    // --- 3. Seed Students and Owners Profiles ---
-    // Create student profiles
-    const studentProfiles = studentUsers.map((user) => ({
-      id: faker.string.uuid(),
-      userName: user.dataValues.name,
-      dob: faker.date.birthdate({ min: 18, max: 25, mode: "age" }),
-      country: "India",
-      permanentAddress: faker.location.streetAddress(true),
-      presentAddress: faker.location.streetAddress(true),
-      city: "Thiruvananthapuram",
-      postalCode: faker.location.zipCode(),
-      userId: user.dataValues.id, // Associate with user
-    }));
-    await Student.bulkCreate(studentProfiles);
-    Logger.info("Student profiles seeded successfully.");
-
-    // Create owner profiles
-    const ownerProfiles = ownerUsers.map((user) => ({
-      id: faker.string.uuid(),
-      name: user.dataValues.name,
-      phone: faker.phone.number(),
-      userId: user.dataValues.id, // Associate with user
-    }));
-    await Owner.bulkCreate(ownerProfiles);
-    Logger.info("Owner profiles seeded successfully.");
-
-    // --- 4. Seed Hostels ---
-    const hostels = [];
-    for (const owner of ownerUsers) {
-      // Each owner will have 2 hostels
-      for (let i = 0; i < 2; i++) {
-        hostels.push({
-          hostelName: `${faker.company.name()} Hostels`,
-          phone: faker.phone.number(),
-          address: faker.location.streetAddress(),
-          curfew: faker.datatype.boolean(),
-          description: faker.lorem.paragraph(),
-          distance: faker.number.float({ min: 0.5, max: 10 }),
-          location: faker.location.city(),
-          rent: faker.number.int({ min: 5000, max: 15000 }),
-          gender: faker.helpers.arrayElement(["boys", "girls", "co-ed"]),
-          bedrooms: faker.number.int({ min: 1, max: 5 }),
-          bathrooms: faker.number.int({ min: 1, max: 3 }),
-          userId: owner.dataValues.id, // Associate with an owner
-        });
-      }
-    }
-    const createdHostels = await Hostel.bulkCreate(hostels);
-    Logger.info("Hostels seeded successfully.");
-
-    // --- 5. Seed Ammenities ---
-    const ammenities = createdHostels.map((hostel) => ({
-      wifi: faker.datatype.boolean(),
-      ac: faker.datatype.boolean(),
-      kitchen: faker.datatype.boolean(),
-      parking: faker.datatype.boolean(),
-      laundry: faker.datatype.boolean(),
-      tv: faker.datatype.boolean(),
-      firstAid: true,
-      workspace: faker.datatype.boolean(),
-      security: true,
-      currentBill: faker.datatype.boolean(),
-      waterBill: faker.datatype.boolean(),
-      food: faker.datatype.boolean(),
-      furniture: true,
-      bed: true,
-      water: true,
-      studentsCount: faker.number.int({ min: 10, max: 50 }),
-      hostelId: hostel.dataValues.id, // Associate with a hostel
-    }));
-    await Ammenities.bulkCreate(ammenities);
-    Logger.info("Ammenities seeded successfully.");
-
-    // --- 6. Seed Reviews ---
-    const reviews = [];
-    for (let i = 0; i < 20; i++) {
-      // Create 20 reviews
-      reviews.push({
-        rating: faker.number.int({ min: 1, max: 5 }),
-        text: faker.lorem.sentence(),
-        image: faker.datatype.boolean(0.25) ? faker.image.url() : null, // 25% chance of having an image
-        date: faker.date.past(),
-        userId: getRandomItem(studentUsers).dataValues.id, // Random student
-        hostelId: getRandomItem(createdHostels).dataValues.id, // Random hostel
-      });
-    }
-    await Review.bulkCreate(reviews as Review[]);
-    Logger.info("Reviews seeded successfully.");
-
-    // --- 7. Seed Enquiries ---
-    console.log("Starting enquiries seeding...");
-    const count = 10;
-    interface EnquiryAttributes {
-      id?: string;
-      hostelId?: string;
-      studentId?: string;
-      enquiry?: boolean;
-      createdAt?: Date;
-      updatedAt?: Date;
-    }
-
-    // Get all existing students and hostels
-    const students = await Student.findAll();
-    const hostels_list = await Hostel.findAll();
-
-    if (students.length === 0) {
-      throw new Error("No students found. Please seed students first.");
-    }
-
-    if (hostels_list.length === 0) {
-      throw new Error("No hostels found. Please seed hostels first.");
-    }
-
-    console.log(
-      `Found ${students.length} students and ${hostels_list.length} hostels`,
+    // --- 2. Read and Process CSV Data ---
+    const results: HostelCsvRow[] = [];
+    // Use process.cwd() to get the root directory of the project
+    const csvFilePath = path.join(
+      process.cwd(),
+      "PG FORM (Responses) - Form Responses 1.csv",
     );
 
-    const enquiries: EnquiryAttributes[] = [];
+    console.log(`Reading CSV file from: ${csvFilePath}`);
 
-    for (let i = 0; i < count; i++) {
-      const randomStudent = faker.helpers.arrayElement(students);
-      const randomHostel = faker.helpers.arrayElement(hostels_list);
+    fs.createReadStream(csvFilePath)
+      .pipe(csv())
+      .on("data", (data: HostelCsvRow) => results.push(data))
+      .on("end", async () => {
+        console.log(
+          `CSV file successfully processed. Found ${results.length} records.`,
+        );
+        console.log("Starting to seed data into tables...");
 
-      const enquiry: EnquiryAttributes = {
-        studentId: randomStudent.dataValues.id,
-        hostelId: randomHostel.dataValues.id,
-        enquiry: faker.datatype.boolean(), // Random true/false
-        createdAt: faker.date.between({
-          from: new Date("2024-01-01"),
-          to: new Date(),
-        }),
-        updatedAt: faker.date.recent({ days: 30 }),
-      };
+        // --- Seeding Counters ---
+        let hostelsAdded = 0;
+        let ownersAdded = 0;
+        let rowsWithDefaults = 0;
+        let rowsFailed = 0;
+        let invalidEmailCounter = 0;
+        const defaultedRowsInfo: {
+          hostelName: string;
+          defaultedFields: string[];
+        }[] = [];
 
-      enquiries.push(enquiry);
-    }
+        // Process each row from the CSV
+        for (const row of results) {
+          const hostelName =
+            row["Hostel name "] || `Unnamed Hostel ${hostelsAdded + 1}`;
+          const defaultedFields: string[] = [];
 
-    // Bulk create enquiries
-    await Enquiry.bulkCreate(enquiries);
+          try {
+            // --- 3. Find or Create User and Owner ---
+            let user: User;
+            let ownerEmail = (row["Owner's email address "] || "").trim();
 
-    console.log(`Successfully seeded ${count} enquiries`);
+            // If email is invalid, create a placeholder and flag it
+            if (!isValidEmail(ownerEmail)) {
+              invalidEmailCounter++;
+              const originalEmail = ownerEmail;
+              ownerEmail = `placeholder-${invalidEmailCounter}@example.com`;
+              console.warn(
+                `Invalid email "${originalEmail}" for hostel "${hostelName}". Using default: "${ownerEmail}"`,
+              );
+              defaultedFields.push(`email (was: "${originalEmail}")`);
+            }
 
-    Logger.info("✅ Database seeding completed!");
+            let sanitizedPhone = sanitizePhoneNumber(
+              row["owner's phone number "],
+            );
+
+            // Validate phone number length: must be 10 digits, or 12 digits starting with 91
+            const is10Digit = sanitizedPhone.length === 10;
+            const is12DigitWith91 =
+              sanitizedPhone.length === 12 && sanitizedPhone.startsWith("91");
+
+            if (!is10Digit && !is12DigitWith91) {
+              const originalPhone = sanitizedPhone;
+              sanitizedPhone = "0000000000";
+              console.warn(
+                `Invalid phone number "${originalPhone}" for hostel "${hostelName}". Must be 10 digits or 12 digits starting with 91. Using default: "${sanitizedPhone}"`,
+              );
+              if (!defaultedFields.some((f) => f.startsWith("phone"))) {
+                defaultedFields.push(`phone (was: "${originalPhone}")`);
+              }
+            }
+
+            if (
+              defaultedFields.length > 0 &&
+              !defaultedRowsInfo.some((info) => info.hostelName === hostelName)
+            ) {
+              rowsWithDefaults++;
+              defaultedRowsInfo.push({ hostelName, defaultedFields });
+            }
+
+            // Find if user already exists
+            const existingUser = await User.findOne({
+              where: { email: ownerEmail },
+            });
+
+            if (existingUser) {
+              user = existingUser;
+            } else {
+              // If user doesn't exist, create a new user and owner
+              user = await User.create({
+                name: row["owner's name  "] || "Unnamed Owner",
+                email: ownerEmail,
+                phoneNo: sanitizedPhone,
+                password: "password123", // Set a default password
+                roleId: ownerRole.dataValues.id,
+              });
+
+              await Owner.create({
+                name: row["owner's name  "] || "Unnamed Owner",
+                phone: sanitizedPhone,
+                userId: user.dataValues.id,
+              });
+              ownersAdded++;
+            }
+
+            // --- 4. Create Hostel ---
+            const rawGender = (row["Type of PG"] || "").toLowerCase();
+            const gender = rawGender.includes("men") ? "men" : "women";
+
+            const hostel = await Hostel.create({
+              hostelName: hostelName,
+              phone: sanitizedPhone,
+              address: row["Address of the PG"],
+              gender: gender,
+              curfew: !!row["Curfew "], // Sets to true if any value exists, false if empty
+              files: row["Photo of the PG"],
+              location: "Sreekaryam", // Default location, can be extracted if available in CSV
+              rent: 0, // This is handled by the Rent table, but the model requires it.
+              userId: user.dataValues.id,
+            });
+            hostelsAdded++;
+
+            // --- 5. Create Amenities ---
+            // Parse the comma-separated amenities string and map to boolean fields.
+            const amenitiesString = row["Amenities "] || "";
+            const amenitiesList = amenitiesString
+              .toLowerCase()
+              .split(",")
+              .map((a: string) => a.trim());
+
+            await Ammenities.create({
+              hostelId: hostel.dataValues.id,
+              wifi: amenitiesList.includes("wifi"),
+              ac:
+                amenitiesList.includes("ac") ||
+                !amenitiesList.includes("non ac rooms"),
+              kitchen: amenitiesList.includes("kitchen"),
+              parking: amenitiesList.includes("parking"),
+              laundry: amenitiesList.includes("laundry service"),
+              tv: amenitiesList.includes("tv"),
+              firstAid: amenitiesList.includes("first aid"),
+              workspace: amenitiesList.includes("workspace"),
+              security: amenitiesList.includes("security"),
+              currentBill: amenitiesList.includes("power back up"),
+              waterBill: true, // Assuming always available
+              food: amenitiesList.includes("food"),
+              furniture: amenitiesList.includes("furniture"),
+              bed: true, // Assuming always available
+              water: amenitiesList.includes("water filter"),
+              studentsCount: 0,
+            });
+
+            // --- 6. Create Rent Entries ---
+            // Create a separate entry for each sharing type that has a price.
+            const rentMappings: { [key: string]: string } = {
+              "1-sharing": row["Price for single room "],
+              "1-sharing-attached":
+                row["Price for single  room + attached bathroom "],
+              "2-sharing": row["Price for 2 sharing "],
+              "2-sharing-attached":
+                row["Price for 2 sharing + attached bathroom "],
+              "3-sharing": row["Price of 3 sharing "],
+              "3-sharing-attached":
+                row["Price for 3 sharing + attached bathroom "],
+              "3+-sharing": row["Price of 3+ sharing "],
+              "3+-sharing-attached":
+                row["Price for 3+ sharing and attached bathroom "],
+            };
+
+            for (const [sharingType, rentValue] of Object.entries(
+              rentMappings,
+            )) {
+              if (rentValue) {
+                // Parse rent to get only the numeric value
+                const rentAmount = parseInt(
+                  rentValue.replace(/[^0-9]/g, ""),
+                  10,
+                );
+                if (!isNaN(rentAmount)) {
+                  // Add a check to prevent out-of-range errors for rent
+                  if (rentAmount > 1000000) {
+                    console.warn(
+                      `Skipping rent entry for hostel "${hostel.hostelName}" due to out-of-range value: ${rentAmount}`,
+                    );
+                    continue;
+                  }
+                  await Rent.create({
+                    hostelId: hostel.dataValues.id,
+                    sharingType: sharingType,
+                    rent: rentAmount,
+                  });
+                }
+              }
+            }
+            console.log(
+              `Seeded hostel: ${hostel.hostelName} for owner ${user.dataValues.name}`,
+            );
+          } catch (error) {
+            console.error(
+              `Error processing a row for hostel "${hostelName}":`,
+              error,
+            );
+            rowsFailed++;
+          }
+        }
+        console.log("\n--- Seeding Summary ---");
+        console.log(`Total rows in CSV: ${results.length}`);
+        console.log(`Hostels successfully added: ${hostelsAdded}`);
+        console.log(`New owners added: ${ownersAdded}`);
+        console.log(`Rows processed with default values: ${rowsWithDefaults}`);
+        console.log(`Rows that failed to process: ${rowsFailed}`);
+
+        if (defaultedRowsInfo.length > 0) {
+          console.log("\n--- Details of Rows with Default Values ---");
+          defaultedRowsInfo.forEach((info) => {
+            console.log(
+              `Hostel: "${info.hostelName}" had default values for: ${info.defaultedFields.join(", ")}`,
+            );
+          });
+        }
+
+        console.log("\n--- Seeding Completed Successfully! ---\n");
+
+        await sequelize.close();
+      });
   } catch (error) {
-    Logger.error("Error seeding database:", error as unknown as Error);
-  } finally {
-    Logger.info("Database connection closed.");
+    console.error("Failed to seed database:", error);
+    await sequelize.close();
   }
 };
 
-// Execute the seeder
-export default seedDatabase;
+// --- Execute the Seeder ---
+seedDatabase();

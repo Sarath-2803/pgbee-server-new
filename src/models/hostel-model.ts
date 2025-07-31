@@ -76,7 +76,7 @@ Hostel.init(
       defaultValue: false,
     },
     address: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     rent: {
@@ -92,7 +92,7 @@ Hostel.init(
       allowNull: false,
     },
     files: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     bathrooms: {
