@@ -12,10 +12,10 @@ const REFRESH_TOKEN: jwt.Secret = process.env.REFRESH_TOKEN!;
 
 const signup = asyncHandler(
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, phoneNo, role } = req.body;
 
-    if (!email || !password || !role || !name)
-      throw new AppError("Email, password, role and name are required");
+    if (!email || !password || !role || !name || !phoneNo)
+      throw new AppError("Email, password, role, name are required");
 
     const existingUser = await User.findByEmail(email);
     if (existingUser) throw new AppError("User with this email already exists");
@@ -27,6 +27,7 @@ const signup = asyncHandler(
     const newUser = await User.create({
       name,
       email,
+      phoneNo,
       password,
       roleId: userRole.id,
     });
