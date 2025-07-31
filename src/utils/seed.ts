@@ -1,11 +1,10 @@
-import { sequelize } from "@/utils"; // Assuming your sequelize instance is exported from here
-import { User, Role, Owner, Hostel, Ammenities, Rent } from "@/models"; // Import all necessary models
+import { sequelize } from "@/utils";
+import { User, Role, Owner, Hostel, Ammenities, Rent } from "@/models"; // Removed File model
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
 
 // --- Interface for the CSV Row Data ---
-// Provides type safety for the data parsed from the CSV file.
 interface HostelCsvRow {
   Timestamp: string;
   "Hostel name ": string;
@@ -26,19 +25,17 @@ interface HostelCsvRow {
   "Price of 3+ sharing ": string;
   "Price for 3+ sharing and attached bathroom ": string;
   "Curfew ": string;
+  "Location ": string;
 }
 
-// --- Helper function to clean phone numbers ---
+// --- Helper Functions ---
 const sanitizePhoneNumber = (phone: string): string => {
   if (!phone) return "";
-  // Removes all non-digit characters from the string
   return phone.replace(/[^0-9]/g, "");
 };
 
-// --- Helper function to validate email format ---
 const isValidEmail = (email: string): boolean => {
   if (!email) return false;
-  // A simple regex to check for a valid email structure.
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
@@ -46,27 +43,23 @@ const isValidEmail = (email: string): boolean => {
 // --- Main Seeding Function ---
 const seedDatabase = async () => {
   try {
-    // Synchronize all models, dropping existing tables
-    // Use { force: true } only in development/seeding environments
+    // Synchronize all models
     console.log("Connecting to database and syncing models...");
     await sequelize.sync({ force: true });
     console.log("Database synced!");
 
-    // --- 1. Seed Roles ---
-    // Create default roles that the system needs to function.
+    // Seed Roles
     console.log("Seeding Roles...");
     const ownerRole = await Role.create({ name: "owner" });
     await Role.create({ name: "student" });
     console.log("Roles seeded successfully.");
 
-    // --- 2. Read and Process CSV Data ---
+    // Read and Process CSV Data
     const results: HostelCsvRow[] = [];
-    // Use process.cwd() to get the root directory of the project
     const csvFilePath = path.join(
       process.cwd(),
       "PG FORM (Responses) - Form Responses 1.csv",
     );
-
     console.log(`Reading CSV file from: ${csvFilePath}`);
 
     fs.createReadStream(csvFilePath)
@@ -76,9 +69,9 @@ const seedDatabase = async () => {
         console.log(
           `CSV file successfully processed. Found ${results.length} records.`,
         );
-        console.log("Starting to seed data into tables...");
+        console.log("Starting to seed data...");
 
-        // --- Seeding Counters ---
+        // Seeding Counters
         let hostelsAdded = 0;
         let ownersAdded = 0;
         let rowsWithDefaults = 0;
@@ -89,18 +82,20 @@ const seedDatabase = async () => {
           defaultedFields: string[];
         }[] = [];
 
-        // Process each row from the CSV
         for (const row of results) {
-          const hostelName =
-            row["Hostel name "] || `Unnamed Hostel ${hostelsAdded + 1}`;
+          const hostelName = (row["Hostel name "] || "").trim();
+          if (!hostelName) {
+            rowsFailed++;
+            console.warn("Skipping row with empty hostel name.");
+            continue;
+          }
           const defaultedFields: string[] = [];
 
           try {
-            // --- 3. Find or Create User and Owner ---
+            // Find or Create User and Owner
             let user: User;
             let ownerEmail = (row["Owner's email address "] || "").trim();
 
-            // If email is invalid, create a placeholder and flag it
             if (!isValidEmail(ownerEmail)) {
               invalidEmailCounter++;
               const originalEmail = ownerEmail;
@@ -114,8 +109,6 @@ const seedDatabase = async () => {
             let sanitizedPhone = sanitizePhoneNumber(
               row["owner's phone number "],
             );
-
-            // Validate phone number length: must be 10 digits, or 12 digits starting with 91
             const is10Digit = sanitizedPhone.length === 10;
             const is12DigitWith91 =
               sanitizedPhone.length === 12 && sanitizedPhone.startsWith("91");
@@ -124,7 +117,7 @@ const seedDatabase = async () => {
               const originalPhone = sanitizedPhone;
               sanitizedPhone = "0000000000";
               console.warn(
-                `Invalid phone number "${originalPhone}" for hostel "${hostelName}". Must be 10 digits or 12 digits starting with 91. Using default: "${sanitizedPhone}"`,
+                `Invalid phone number "${originalPhone}" for hostel "${hostelName}". Using default: "${sanitizedPhone}"`,
               );
               if (!defaultedFields.some((f) => f.startsWith("phone"))) {
                 defaultedFields.push(`phone (was: "${originalPhone}")`);
@@ -139,7 +132,6 @@ const seedDatabase = async () => {
               defaultedRowsInfo.push({ hostelName, defaultedFields });
             }
 
-            // Find if user already exists
             const existingUser = await User.findOne({
               where: { email: ownerEmail },
             });
@@ -147,12 +139,11 @@ const seedDatabase = async () => {
             if (existingUser) {
               user = existingUser;
             } else {
-              // If user doesn't exist, create a new user and owner
               user = await User.create({
                 name: row["owner's name  "] || "Unnamed Owner",
                 email: ownerEmail,
                 phoneNo: sanitizedPhone,
-                password: "password123", // Set a default password
+                password: "password123",
                 roleId: ownerRole.dataValues.id,
               });
 
@@ -164,7 +155,7 @@ const seedDatabase = async () => {
               ownersAdded++;
             }
 
-            // --- 4. Create Hostel ---
+            // Create Hostel
             const rawGender = (row["Type of PG"] || "").toLowerCase();
             const gender = rawGender.includes("men") ? "men" : "women";
 
@@ -173,22 +164,21 @@ const seedDatabase = async () => {
               phone: sanitizedPhone,
               address: row["Address of the PG"],
               gender: gender,
-              curfew: !!row["Curfew "], // Sets to true if any value exists, false if empty
-              files: row["Photo of the PG"],
-              location: "Sreekaryam", // Default location, can be extracted if available in CSV
-              rent: 0, // This is handled by the Rent table, but the model requires it.
+              curfew: !!row["Curfew "],
+              location: row["Location "] || null,
+              files:
+                "https://via.placeholder.com/400x300.png?text=Hostel+Image", // Using placeholder image
+              rent: 0,
               userId: user.dataValues.id,
             });
             hostelsAdded++;
 
-            // --- 5. Create Amenities ---
-            // Parse the comma-separated amenities string and map to boolean fields.
+            // Create Amenities
             const amenitiesString = row["Amenities "] || "";
             const amenitiesList = amenitiesString
               .toLowerCase()
               .split(",")
               .map((a: string) => a.trim());
-
             await Ammenities.create({
               hostelId: hostel.dataValues.id,
               wifi: amenitiesList.includes("wifi"),
@@ -203,17 +193,16 @@ const seedDatabase = async () => {
               workspace: amenitiesList.includes("workspace"),
               security: amenitiesList.includes("security"),
               currentBill: amenitiesList.includes("power back up"),
-              waterBill: true, // Assuming always available
+              waterBill: true,
               food: amenitiesList.includes("food"),
               furniture: amenitiesList.includes("furniture"),
-              bed: true, // Assuming always available
+              bed: true,
               water: amenitiesList.includes("water filter"),
               studentsCount: 0,
             });
 
-            // --- 6. Create Rent Entries ---
-            // Create a separate entry for each sharing type that has a price.
-            const rentMappings: { [key: string]: string } = {
+            // Create Rent Entries
+            const rentMappings = {
               "1-sharing": row["Price for single room "],
               "1-sharing-attached":
                 row["Price for single  room + attached bathroom "],
@@ -227,24 +216,15 @@ const seedDatabase = async () => {
               "3+-sharing-attached":
                 row["Price for 3+ sharing and attached bathroom "],
             };
-
             for (const [sharingType, rentValue] of Object.entries(
               rentMappings,
             )) {
               if (rentValue) {
-                // Parse rent to get only the numeric value
                 const rentAmount = parseInt(
                   rentValue.replace(/[^0-9]/g, ""),
                   10,
                 );
-                if (!isNaN(rentAmount)) {
-                  // Add a check to prevent out-of-range errors for rent
-                  if (rentAmount > 1000000) {
-                    console.warn(
-                      `Skipping rent entry for hostel "${hostel.hostelName}" due to out-of-range value: ${rentAmount}`,
-                    );
-                    continue;
-                  }
+                if (!isNaN(rentAmount) && rentAmount <= 1000000) {
                   await Rent.create({
                     hostelId: hostel.dataValues.id,
                     sharingType: sharingType,
@@ -281,9 +261,12 @@ const seedDatabase = async () => {
         }
 
         console.log("\n--- Seeding Completed Successfully! ---\n");
+
+        await sequelize.close();
       });
   } catch (error) {
     console.error("Failed to seed database:", error);
+    await sequelize.close();
   }
 };
 

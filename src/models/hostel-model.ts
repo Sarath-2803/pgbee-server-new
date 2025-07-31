@@ -89,7 +89,6 @@ Hostel.init(
     },
     location: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     files: {
       type: DataTypes.TEXT,
