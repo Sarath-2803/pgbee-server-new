@@ -6,7 +6,18 @@ import Hostel from "./hostel-model";
 import Review from "./review-model";
 import Enquiry from "./enquiry-model";
 import Ammenities from "./ammenities-model";
+import Rent from "./rent-model";
 
 import "./relations";
 
-export { Owner, Enquiry, User, Role, Student, Hostel, Review, Ammenities };
+export {
+  Owner,
+  Enquiry,
+  User,
+  Role,
+  Student,
+  Hostel,
+  Review,
+  Ammenities,
+  Rent,
+};

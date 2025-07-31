@@ -12,6 +12,7 @@ import {
   docsRouter,
   studentRouter,
   enquiryRouter,
+  rentRouter,
 } from "@/routes";
 import {
   authorize,
@@ -57,6 +58,7 @@ const createApp = async () => {
   router.use("/owner", authorize, ownerRouter);
   router.use("/enquiry", enquiryRouter);
   router.use("/student", authorize, studentRouter);
+  app.use("/rent", authorize, rentRouter);
 
   app.use(router);
   app.use("/", docsRouter);
