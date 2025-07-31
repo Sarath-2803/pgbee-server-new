@@ -80,9 +80,10 @@ const login = asyncHandler(
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: "strict",
       secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
+      path: "/",
     });
 
     ResponseHandler.success(
@@ -90,7 +91,6 @@ const login = asyncHandler(
       "User logged in successfully",
       {
         accessToken,
-        refreshToken,
       },
       200,
     );
