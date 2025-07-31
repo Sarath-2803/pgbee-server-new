@@ -72,4 +72,40 @@ const refreshToken = asyncHandler(
   },
 );
 
-export default refreshToken;
+const verifyToken = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // const token = req.headers.authorization?.split(" ")[1];
+    console.log(req.cookies, req.headers);
+    const token = req.cookies.token;
+    if (!token) {
+      return next(new AppError("Access token is required", 401, true));
+    }
+    jwt.verify(
+      token,
+      JWT_SECRET,
+      (
+        error: jwt.VerifyErrors | null,
+        decoded: string | jwt.JwtPayload | undefined,
+      ) => {
+        if (error) {
+          return next(
+            new AppError("Invalid or expired access token", 403, true),
+          );
+        }
+        if (!decoded || typeof decoded === "string") {
+          return next(
+            new AppError("Invalid or expired access token", 403, true),
+          );
+        }
+        ResponseHandler.success(
+          res,
+          "Token verified successfully",
+          { verified: true },
+          200,
+        );
+      },
+    );
+  },
+);
+
+export default { refreshToken, verifyToken };
