@@ -16,6 +16,7 @@ interface OwnerAttributes {
   // files?: string;
   // bedrooms?: number;
   // bathrooms?: number;
+  userId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -32,6 +33,7 @@ interface OwnerCreationAttributes
 class Owner extends Model<OwnerAttributes> implements OwnerAttributes {
   declare id: string;
   declare name?: string;
+  declare userId?: string;
   declare phone?: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
