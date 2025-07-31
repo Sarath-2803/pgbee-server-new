@@ -91,6 +91,23 @@ const renameFilesInDirectory = (directoryPath: string) => {
   }
 };
 
+const getMimeType = (fileName: string): string => {
+  const ext = path.extname(fileName).toLowerCase();
+  switch (ext) {
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".png":
+      return "image/png";
+    case ".gif":
+      return "image/gif";
+    case ".webp":
+      return "image/webp";
+    default:
+      return "application/octet-stream"; // A generic default
+  }
+};
+
 // --- Local File Upload Function ---
 /**
  * Finds files in a local directory corresponding to the hostel name and uploads them to S3.
@@ -135,6 +152,7 @@ async function uploadImagesFromLocalFolder(
     for (const fileName of imageFiles) {
       const filePath = path.join(localFolderPath, fileName);
       const fileBuffer = fs.readFileSync(filePath);
+      const mimeType = getMimeType(fileName);
 
       // Use the slugified hostel name for the S3 folder path
       const s3Key = `hostel-images/${hostelNameSlug}/${fileName}`;
@@ -142,6 +160,7 @@ async function uploadImagesFromLocalFolder(
         Bucket: "pgbee",
         Key: s3Key,
         Body: fileBuffer,
+        ContentType: mimeType,
       });
 
       const uploadResult = await s3Client.send(command);
