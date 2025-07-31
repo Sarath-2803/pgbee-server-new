@@ -281,12 +281,9 @@ const seedDatabase = async () => {
         }
 
         console.log("\n--- Seeding Completed Successfully! ---\n");
-
-        await sequelize.close();
       });
   } catch (error) {
     console.error("Failed to seed database:", error);
-    await sequelize.close();
   }
 };
 
