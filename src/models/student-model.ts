@@ -5,12 +5,12 @@ import { sequelize } from "@/utils";
 interface StudentAttributes {
   id?: string;
   userName?: string;
-  dob?: Date;
-  country?: string;
-  permanentAddress?: string;
-  presentAddress?: string;
-  city?: string;
-  postalCode?: string;
+  name?: string;
+  dob?: string;
+  address?: string;
+  phoneNo?: string;
+  gender?: string;
+  userId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -24,16 +24,16 @@ class Student
   extends Model<StudentAttributes>
   implements StudentAttributes
 {
-  public id!: string;
-  public userName?: string;
-  public dob?: Date;
-  public country?: string;
-  public permanentAddress?: string;
-  public presentAddress?: string;
-  public city?: string;
-  public postalCode?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare userName?: string;
+  declare dob?: string;
+  declare name?: string;
+  declare address?: string;
+  declare phoneNo?: string;
+  declare gender?: string;
+  declare userId?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   public static async findById(id: string): Promise<Student | null> {
     return await this.findOne({ where: { id } });
@@ -55,6 +55,10 @@ Student.init(
       allowNull: false,
       primaryKey: true,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     userName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -63,23 +67,15 @@ Student.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    country: {
+    gender: {
+      type: DataTypes.ENUM("Male", "Female"),
+      allowNull: false,
+    },
+    address: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    permanentAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    presentAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    city: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    postalCode: {
+    phoneNo: {
       type: DataTypes.STRING,
       allowNull: false,
     },

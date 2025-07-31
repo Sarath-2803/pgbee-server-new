@@ -16,16 +16,16 @@ interface ReviewAttributes {
 }
 
 class Review extends Model<ReviewAttributes> implements ReviewAttributes {
-  public id!: string;
-  public name?: string;
-  public date?: Date;
-  public text?: string;
-  public image?: string;
-  public rating?: number;
-  public userId?: string;
-  public hostelId?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name?: string;
+  declare date?: Date;
+  declare text?: string;
+  declare image?: string;
+  declare rating?: number;
+  declare userId?: string;
+  declare hostelId?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
   public static async findById(id: string): Promise<Review | null> {
     return await this.findOne({ where: { id } });
   }

@@ -71,17 +71,8 @@ const googleSuccess = asyncHandler(async (req: Request, res: Response) => {
       secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
-
-    res.redirect("https://app.pgbee.in/dashboard?accessToken=" + accessToken);
-    // ResponseHandler.success(
-    //   res,
-    //   "User authenticated successfully",
-    //   {
-    //     accessToken,
-    //     refreshToken,
-    //   },
-    //   200,
-    // );
+    res.header("Authorization", `Bearer ${accessToken}`);
+    res.redirect(`https://app.pgbee.in/userDashboard`);
   }
 });
 

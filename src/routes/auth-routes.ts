@@ -14,5 +14,6 @@ authRouter.get(
   googleAuthController.googleCallback,
   googleAuthController.googleSuccess,
 );
+authRouter.post("/logout", authController.signout);
 
 export default authRouter;
