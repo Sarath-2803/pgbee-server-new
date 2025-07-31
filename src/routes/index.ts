@@ -8,9 +8,11 @@ import docsRouter from "./docs-routes";
 import studentRouter from "./student-routes";
 import enquiryRouter from "./enquires-routes";
 import rentRouter from "./rent-routes";
+import fileRouter from "./file-routes";
 
 export {
   enquiryRouter,
+  fileRouter,
   authRouter,
   studentRouter,
   rentRouter,

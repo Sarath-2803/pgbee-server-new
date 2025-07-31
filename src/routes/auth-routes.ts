@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { refreshToken } from "@/controllers";
+import { tokenController } from "@/controllers";
 import { googleAuthController } from "@/controllers";
 import { authController } from "@/controllers";
 
@@ -7,7 +7,8 @@ const authRouter = Router();
 
 authRouter.post("/login", authController.login);
 authRouter.post("/signup", authController.signup);
-authRouter.post("/token/refresh", refreshToken);
+authRouter.post("/verify", tokenController.verifyToken);
+authRouter.post("/token/refresh", tokenController.refreshToken);
 authRouter.get("/google", googleAuthController.googlelogin);
 authRouter.get(
   "/google/callback",

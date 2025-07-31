@@ -23,12 +23,7 @@ const authorize = async (req: Request, res: Response, next: NextFunction) => {
         .status(401)
         .json({ success: false, message: "Unauthorized access" });
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, JWT_SECRET);
-    } catch (error) {
-      console.log(error);
-    }
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     let email: string | undefined;
     if (typeof decoded === "object" && decoded !== null && "email" in decoded) {

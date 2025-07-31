@@ -9,6 +9,7 @@ interface UserAttributes {
   id?: string;
   name: string;
   email: string;
+  phoneNo: string;
   password: string;
   roleId?: string;
   createdAt?: Date;
@@ -30,6 +31,7 @@ class User
   declare id: string;
   declare name: string; // Assuming you want to add a name field
   declare email: string;
+  declare phoneNo: string; // Assuming you want to add a phoneNo field
   declare password: string;
   declare roleId?: string;
   declare readonly createdAt: Date;
@@ -73,6 +75,13 @@ User.init(
       unique: true,
       validate: {
         isEmail: true,
+      },
+    },
+    phoneNo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        is: /^[0-9]+$/, // Validate that phoneNo contains only numbers
       },
     },
     password: {
