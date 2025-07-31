@@ -1,8 +1,11 @@
+// src/seeders/seed.ts
 import { sequelize } from "@/utils";
-import { User, Role, Owner, Hostel, Ammenities, Rent } from "@/models"; // Removed File model
+import { User, Role, Owner, Hostel, Ammenities, Rent, File } from "@/models";
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getS3Instance } from "@/utils"; // Assuming this utility exists
 
 // --- Interface for the CSV Row Data ---
 interface HostelCsvRow {
@@ -40,6 +43,126 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+const slugify = (text: string): string => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+};
+
+/**
+ * Renames image files in a directory to a sequential number format (1, 2, 3...).
+ * @param directoryPath The absolute path to the directory.
+ */
+const renameFilesInDirectory = (directoryPath: string) => {
+  try {
+    console.log(`Renaming files in: ${directoryPath}`);
+    const files = fs.readdirSync(directoryPath);
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+
+    // Filter for image files only
+    const imageFiles = files.filter((file) =>
+      imageExtensions.includes(path.extname(file).toLowerCase()),
+    );
+
+    let counter = 1;
+    for (const oldFileName of imageFiles) {
+      const extension = path.extname(oldFileName);
+      const newFileName = `${counter}${extension}`;
+      const oldFilePath = path.join(directoryPath, oldFileName);
+      const newFilePath = path.join(directoryPath, newFileName);
+
+      // Only rename if the new name is different, to avoid errors
+      if (oldFilePath !== newFilePath) {
+        fs.renameSync(oldFilePath, newFilePath);
+        console.log(`  - Renamed "${oldFileName}" to "${newFileName}"`);
+      }
+      counter++;
+    }
+  } catch (error) {
+    console.error(
+      `Could not rename files in directory ${directoryPath}:`,
+      error,
+    );
+  }
+};
+
+// --- Local File Upload Function ---
+/**
+ * Finds files in a local directory corresponding to the hostel name and uploads them to S3.
+ * @param hostelName The name of the local folder to search for.
+ * @param hostelId The ID of the hostel to associate files with.
+ * @param userId The ID of the owner.
+ */
+async function uploadImagesFromLocalFolder(
+  hostelName: string,
+  hostelId: string,
+  userId: string,
+) {
+  const s3Client = getS3Instance();
+  const localFolderPath = path.join(process.cwd(), "photos", hostelName);
+
+  if (!fs.existsSync(localFolderPath)) {
+    console.warn(
+      `No local photo directory found for hostel: "${hostelName}". Skipping image upload.`,
+    );
+    return;
+  }
+
+  try {
+    // Rename files to sequential numbers before processing
+    renameFilesInDirectory(localFolderPath);
+
+    const imageFiles = fs.readdirSync(localFolderPath);
+
+    if (imageFiles.length === 0) {
+      console.log(
+        `No images found in the local folder for hostel: "${hostelName}".`,
+      );
+      return;
+    }
+
+    console.log(
+      `Found ${imageFiles.length} image(s) for hostel "${hostelName}". Starting upload...`,
+    );
+
+    const hostelNameSlug = slugify(hostelName); // Create a URL-safe version of the name
+
+    for (const fileName of imageFiles) {
+      const filePath = path.join(localFolderPath, fileName);
+      const fileBuffer = fs.readFileSync(filePath);
+
+      // Use the slugified hostel name for the S3 folder path
+      const s3Key = `hostel-images/${hostelNameSlug}/${fileName}`;
+      const command = new PutObjectCommand({
+        Bucket: "pgbee",
+        Key: s3Key,
+        Body: fileBuffer,
+      });
+
+      const uploadResult = await s3Client.send(command);
+
+      await File.create({
+        Location: `https://pgbee.s3.amazonaws.com/${s3Key}`,
+        key: s3Key,
+        ETag: uploadResult.ETag,
+        userId: userId,
+        hostelId: hostelId,
+      });
+      console.log(`  - Uploaded ${fileName} to S3.`);
+    }
+  } catch (error) {
+    console.error(
+      `Failed to process images for hostel "${hostelName}":`,
+      error,
+    );
+  }
+}
+
 // --- Main Seeding Function ---
 const seedDatabase = async () => {
   try {
@@ -69,7 +192,7 @@ const seedDatabase = async () => {
         console.log(
           `CSV file successfully processed. Found ${results.length} records.`,
         );
-        console.log("Starting to seed data...");
+        console.log("Starting to seed data and upload files...");
 
         // Seeding Counters
         let hostelsAdded = 0;
@@ -166,12 +289,18 @@ const seedDatabase = async () => {
               gender: gender,
               curfew: !!row["Curfew "],
               location: row["Location "] || null,
-              files:
-                "https://via.placeholder.com/400x300.png?text=Hostel+Image", // Using placeholder image
+              files: null, // This is now handled by the File model
               rent: 0,
               userId: user.dataValues.id,
             });
             hostelsAdded++;
+
+            // --- AUTOMATED S3 UPLOAD FROM LOCAL FOLDER ---
+            await uploadImagesFromLocalFolder(
+              hostelName,
+              hostel.dataValues.id,
+              user.dataValues.id,
+            );
 
             // Create Amenities
             const amenitiesString = row["Amenities "] || "";
