@@ -7,6 +7,7 @@ import {
   authRouter,
   hostelRouter,
   reviewRouter,
+  fileRouter,
   ammenitiesRouter,
   ownerRouter,
   docsRouter,
@@ -59,6 +60,7 @@ const createApp = async () => {
   router.use("/enquiry", authorize, enquiryRouter);
   router.use("/student", authorize, studentRouter);
   app.use("/rent", authorize, rentRouter);
+  router.use("/file", authorize, fileRouter);
 
   app.use(router);
   app.use("/", docsRouter);

@@ -1,5 +1,5 @@
 import { S3Client } from "@aws-sdk/client-s3";
-const s3Instance: S3Client | null = null;
+let s3Instance: S3Client | null = null;
 export const getS3Instance = () => {
   if (!s3Instance) {
     // Validate environment variables
@@ -9,17 +9,12 @@ export const getS3Instance = () => {
       );
     }
 
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    s3Instance = new S3Client({
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
       region: process.env.AWS_REGION || "us-east-1",
-    });
-
-    s3Instance = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION || "us-east-1",
-      signatureVersion: "v4",
     });
   }
   return s3Instance;

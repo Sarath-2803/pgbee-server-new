@@ -7,6 +7,7 @@ import Review from "./review-model";
 import Enquiry from "./enquiry-model";
 import Ammenities from "./ammenities-model";
 import Rent from "./rent-model";
+import File from "./file-model";
 
 import "./relations";
 
@@ -15,6 +16,7 @@ export {
   Enquiry,
   User,
   Role,
+  File,
   Student,
   Hostel,
   Review,
