@@ -53,7 +53,7 @@ const createApp = async () => {
   const router = express.Router();
 
   router.use("/auth", authRouter);
-  router.use("/hostel", authorize, hostelRouter);
+  router.use("/hostel", hostelRouter);
   router.use("/review", authorize, reviewRouter);
   router.use("/ammenities", authorize, ammenitiesRouter);
   router.use("/owner", authorize, ownerRouter);
