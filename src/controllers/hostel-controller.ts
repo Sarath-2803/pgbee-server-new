@@ -7,6 +7,7 @@ import {
   Rent,
   Review,
   Student,
+  File,
 } from "@/models";
 import { z } from "zod";
 import { AppError, asyncHandler } from "@/middlewares";
@@ -67,6 +68,10 @@ const includeAllRelations = [
     attributes: { exclude: ["createdAt", "updatedAt", "hostelId"] },
   },
   {
+    model: File,
+    attributes: { exclude: ["createdAt", "updatedAt", "hostelId"] },
+  },
+  {
     model: Rent,
     attributes: { exclude: ["createdAt", "updatedAt", "hostelId"] },
   },
@@ -76,6 +81,89 @@ const includeAllRelations = [
     through: { attributes: ["enquiry", "createdAt"] }, // Include details from the Enquiry join table
   },
 ];
+
+// Define interfaces for better type safety
+interface FileData {
+  Location?: string;
+  Key?: string;
+  key?: string;
+}
+
+interface HostelWithRelations {
+  id: string;
+  hostelName?: string;
+  phone?: string;
+  address?: string;
+  curfew?: boolean;
+  distance?: number;
+  location?: string;
+  rent?: number;
+  gender?: string;
+  files?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  userId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  Files?: FileData[];
+  User?: object;
+  Reviews?: object[];
+  Ammenities?: object;
+  Rents?: object[];
+  Students?: object[];
+  toJSON?: () => HostelWithRelations;
+}
+
+interface TransformedHostel extends HostelWithRelations {
+  name?: string;
+  images: string[];
+}
+
+// Helper function to transform hostel data for frontend compatibility
+const transformHostelForFrontend = (
+  hostel: HostelWithRelations | null,
+): TransformedHostel | null => {
+  if (!hostel) return null;
+
+  const hostelData = hostel.toJSON ? hostel.toJSON() : hostel;
+
+  // Extract images from Files relation
+  const images: string[] =
+    hostelData.Files?.map(
+      (file: FileData) => file.Location || file.Key || file.key || "",
+    ).filter(Boolean) || [];
+
+  // If no files are available, fallback to the files field or use placeholder
+  if (images.length === 0) {
+    if (hostelData.files) {
+      // If files is a JSON string, parse it
+      try {
+        const parsedFiles = JSON.parse(hostelData.files);
+        if (Array.isArray(parsedFiles)) {
+          images.push(
+            ...parsedFiles.filter((file: unknown) => typeof file === "string"),
+          );
+        } else if (typeof parsedFiles === "string") {
+          images.push(parsedFiles);
+        }
+      } catch {
+        // If not JSON, treat as single file URL
+        images.push(hostelData.files);
+      }
+    }
+
+    // Add placeholder if still no images
+    if (images.length === 0) {
+      images.push("https://placehold.co/300x300?text=No+Image");
+    }
+  }
+
+  return {
+    ...hostelData,
+    name: hostelData.hostelName, // Map hostelName to name for frontend
+    images: images, // Provide images array for frontend
+  };
+};
 
 const regHostel = asyncHandler(async (req: Request, res: Response) => {
   const hostelData: createHostelDTO = hostelSchema.parse(req.body);
@@ -90,10 +178,12 @@ const regHostel = asyncHandler(async (req: Request, res: Response) => {
     include: includeAllRelations,
   });
 
+  const transformedHostel = transformHostelForFrontend(completeHostel);
+
   ResponseHandler.success(
     res,
     "Hostel created successfully",
-    { hostel: completeHostel },
+    { hostel: transformedHostel },
     201,
   );
 });
@@ -108,21 +198,34 @@ const getHostelById = asyncHandler(async (req: Request, res: Response) => {
   if (!hostel) {
     throw new AppError("Hostel not found", 404, true);
   }
-  ResponseHandler.success(res, "Hostel fetched successfully", { hostel }, 200);
+
+  const transformedHostel = transformHostelForFrontend(hostel);
+
+  ResponseHandler.success(
+    res,
+    "Hostel fetched successfully",
+    { hostel: transformedHostel },
+    200,
+  );
 });
 
 const getAllHostelsStudent = asyncHandler(
-  async (req: Request, res: Response) => {
+  async (_req: Request, res: Response) => {
     // Find all hostels and include their related data
     const hostels = await Hostel.findAll({ include: includeAllRelations });
 
     if (!hostels || hostels.length === 0) {
       throw new AppError("No hostels found", 404, true);
     }
+
+    const transformedHostels = hostels
+      .map((hostel: HostelWithRelations) => transformHostelForFrontend(hostel))
+      .filter(Boolean) as TransformedHostel[];
+
     ResponseHandler.success(
       res,
       "Hostels fetched successfully",
-      { hostels },
+      { hostels: transformedHostels },
       200,
     );
   },
@@ -145,10 +248,14 @@ const getAllHostelsOwner = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("No hostels found for this user", 404, true);
   }
 
+  const transformedHostels = hostels
+    .map((hostel: HostelWithRelations) => transformHostelForFrontend(hostel))
+    .filter(Boolean) as TransformedHostel[];
+
   ResponseHandler.success(
     res,
     "Hostels fetched successfully",
-    { hostels },
+    { hostels: transformedHostels },
     200,
   );
 });
@@ -188,10 +295,12 @@ const updateHostel = asyncHandler(async (req: Request, res: Response) => {
     include: includeAllRelations,
   });
 
+  const transformedHostel = transformHostelForFrontend(updatedHostel);
+
   ResponseHandler.success(
     res,
     "Hostel updated successfully",
-    { hostel: updatedHostel },
+    { hostel: transformedHostel },
     200,
   );
 });

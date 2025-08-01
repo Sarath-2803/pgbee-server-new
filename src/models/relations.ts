@@ -3,6 +3,7 @@ import {
   Owner,
   User,
   Role,
+  File,
   Hostel,
   Review,
   Ammenities,
@@ -84,6 +85,12 @@ Hostel.belongsToMany(Student, {
 });
 
 Hostel.hasMany(Rent, {
+  foreignKey: {
+    name: "hostelId",
+  },
+});
+
+Hostel.hasMany(File, {
   foreignKey: {
     name: "hostelId",
   },

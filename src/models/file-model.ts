@@ -10,7 +10,7 @@ interface FileAttributes {
   key?: string;
   Key?: string;
   ETag?: string;
-  userId?: string;
+  hostelId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,8 +20,8 @@ class File extends Model<FileAttributes> implements FileAttributes {
   declare Location?: string;
   declare key?: string;
   declare Key?: string;
-  ETag?: string;
-  declare userId?: string;
+  declare ETag?: string;
+  hostelId?: string;
 
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;

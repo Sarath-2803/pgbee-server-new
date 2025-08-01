@@ -33,11 +33,37 @@ const signup = asyncHandler(
     });
     await newUser.save();
 
+    const accessToken = jwt.sign(
+      {
+        userId: newUser.dataValues.id,
+        email: newUser.dataValues.email,
+      },
+      JWT_SECRET,
+      { expiresIn: "15m" },
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        userId: newUser.dataValues.id,
+        email: newUser.dataValues.email,
+      },
+      REFRESH_TOKEN,
+      { expiresIn: "7d" },
+    );
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      path: "/",
+    });
+
     ResponseHandler.success(
       res,
       "User created successfully",
       {
-        newUser,
+        accessToken,
       },
       201,
     );
