@@ -12,11 +12,10 @@ interface HostelAttributes {
   curfew?: boolean;
   distance?: number;
   location?: string;
-  rent?: number;
   gender?: string;
-  files?: string;
   bedrooms?: number;
   bathrooms?: number;
+  availabe?: boolean;
   userId?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -30,11 +29,10 @@ class Hostel extends Model<HostelAttributes> implements HostelAttributes {
   declare curfew?: boolean;
   declare location?: string;
   declare distance?: number;
-  declare rent?: number;
   declare gender?: string;
   declare bedrooms?: number;
   declare bathrooms?: number;
-  declare files?: string;
+  declare available?: boolean;
   declare userId?: string;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
@@ -46,7 +44,7 @@ class Hostel extends Model<HostelAttributes> implements HostelAttributes {
   public getUser!: () => Promise<User>;
 
   public static async createHostel(
-    HostelData: Optional<HostelAttributes, "id" | "files">,
+    HostelData: Optional<HostelAttributes, "id">,
   ): Promise<Hostel> {
     return await this.create(HostelData);
   }
@@ -79,10 +77,6 @@ Hostel.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    rent: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
     gender: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -90,9 +84,10 @@ Hostel.init(
     location: {
       type: DataTypes.STRING,
     },
-    files: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+    available: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
     bathrooms: {
       type: DataTypes.INTEGER,

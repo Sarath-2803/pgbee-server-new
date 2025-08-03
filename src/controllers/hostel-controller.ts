@@ -37,9 +37,10 @@ const hostelSchema = z.object({
   location: z.string().min(1, "Location is required"),
   rent: z.number().min(0, "Rent must be a positive number"),
   gender: z.string().min(1, "Gender is required"),
-  files: z.string().optional(),
+  available: z.boolean().default(true),
   bedrooms: z.number().min(1, "At least one bedroom is required"),
   bathrooms: z.number().min(1, "At least one bathroom is required"),
+  userId: z.string().optional(), // This will be set from the authenticated user
 });
 
 // Zod schema for partial updates
@@ -167,11 +168,9 @@ const transformHostelForFrontend = (
 
 const regHostel = asyncHandler(async (req: Request, res: Response) => {
   const hostelData: createHostelDTO = hostelSchema.parse(req.body);
+  hostelData.userId = req.user?.id;
   const newHostel = await Hostel.createHostel(hostelData);
   if (!newHostel) throw new AppError("Failed to create hostel", 500, true);
-
-  // Associate the hostel with the logged-in user
-  await newHostel.setUser(req.user?.id as string);
 
   // Fetch the newly created hostel with all its relations to return the full object
   const completeHostel = await Hostel.findByPk(newHostel.id, {
