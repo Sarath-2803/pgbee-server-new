@@ -37,7 +37,7 @@ const hostelSchema = z.object({
   location: z.string().min(1, "Location is required"),
   rent: z.number().min(0, "Rent must be a positive number"),
   gender: z.string().min(1, "Gender is required"),
-  files: z.string().optional(),
+  available: z.boolean().default(true),
   bedrooms: z.number().min(1, "At least one bedroom is required"),
   bathrooms: z.number().min(1, "At least one bathroom is required"),
   userId: z.string().optional(), // This will be set from the authenticated user

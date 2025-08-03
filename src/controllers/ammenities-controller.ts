@@ -15,6 +15,7 @@ const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
     firstAid,
     workspace,
     security,
+    mess,
   } = req.body;
 
   if (
@@ -27,7 +28,8 @@ const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
     typeof tv !== "boolean" ||
     typeof firstAid !== "boolean" ||
     typeof workspace !== "boolean" ||
-    typeof security !== "boolean"
+    typeof security !== "boolean" ||
+    typeof mess !== "boolean"
   ) {
     throw new AppError(
       "All fields are required and must be of correct type",
@@ -47,6 +49,7 @@ const createAmmenities = asyncHandler(async (req: Request, res: Response) => {
     firstAid,
     workspace,
     security,
+    mess,
   });
 
   if (!ammenities) {
@@ -101,6 +104,7 @@ const updateAmmenities = asyncHandler(async (req: Request, res: Response) => {
     bed,
     water,
     studentsCount,
+    mess,
   } = req.body;
 
   const ammenities = await Ammenities.findOne({ where: { hostelId } });
@@ -110,6 +114,7 @@ const updateAmmenities = asyncHandler(async (req: Request, res: Response) => {
   const updatedAmmenities = await ammenities.update({
     wifi,
     ac,
+    mess,
     kitchen,
     parking,
     laundry,
@@ -159,6 +164,7 @@ const filterAmmenities = asyncHandler(async (req: Request, res: Response) => {
     firstAid,
     workspace,
     security,
+    mess,
   } = req.body;
 
   if (
@@ -170,7 +176,8 @@ const filterAmmenities = asyncHandler(async (req: Request, res: Response) => {
     typeof tv !== "boolean" ||
     typeof firstAid !== "boolean" ||
     typeof workspace !== "boolean" ||
-    typeof security !== "boolean"
+    typeof security !== "boolean" ||
+    typeof mess !== "boolean"
   ) {
     throw new AppError("All fields must be boolean", 400, true);
   }
@@ -186,6 +193,7 @@ const filterAmmenities = asyncHandler(async (req: Request, res: Response) => {
   if (firstAid === true) whereConditions.firstAid = true;
   if (workspace === true) whereConditions.workspace = true;
   if (security === true) whereConditions.security = true;
+  if (mess === true) whereConditions.mess = true;
 
   if (Object.keys(whereConditions).length === 0) {
     const hostels = await Hostel.findAll();
