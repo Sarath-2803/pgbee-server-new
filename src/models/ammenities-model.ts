@@ -11,6 +11,7 @@ interface AmmenitiesAttributes {
   laundry?: boolean;
   tv?: boolean;
   firstAid?: boolean;
+  mess?: boolean;
   workspace?: boolean;
   security?: boolean;
   currentBill?: boolean;
@@ -48,6 +49,7 @@ class Ammenities
   declare firstAid?: boolean;
   declare workspace?: boolean;
   declare security?: boolean;
+  declare mess?: boolean;
   declare currentBill?: boolean;
   declare waterBill?: boolean;
   declare food?: boolean;
@@ -87,6 +89,11 @@ Ammenities.init(
     kitchen: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+    },
+    mess: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     parking: {
       type: DataTypes.BOOLEAN,
