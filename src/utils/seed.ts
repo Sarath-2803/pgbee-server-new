@@ -1,6 +1,5 @@
 // src/seeders/seed.ts
-import { sequelize } from "@/utils";
-import { User, Role, Owner, Hostel, Ammenities, Rent, File } from "@/models";
+import { User, Owner, Hostel, Ammenities, Rent, File } from "@/models";
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
@@ -187,21 +186,22 @@ const seedDatabase = async () => {
   try {
     // Synchronize all models
     console.log("Connecting to database and syncing models...");
-    await sequelize.sync({ force: true });
+    await Hostel.sync({ force: true });
+    await Ammenities.sync({ force: true });
+    await Rent.sync({ force: true });
+    await File.sync({ force: true });
+    // await sequelize.sync({ force: true });
     console.log("Database synced!");
 
     // Seed Roles
-    console.log("Seeding Roles...");
-    const ownerRole = await Role.create({ name: "owner" });
-    await Role.create({ name: "student" });
-    console.log("Roles seeded successfully.");
+    // console.log("Seeding Roles...");
+    // const ownerRole = await Role.create({ name: "owner" });
+    // await Role.create({ name: "student" });
+    // console.log("Roles seeded successfully.");
 
     // Read and Process CSV Data
     const results: HostelCsvRow[] = [];
-    const csvFilePath = path.join(
-      process.cwd(),
-      "PG FORM (Responses) - Form Responses 1.csv",
-    );
+    const csvFilePath = path.join(process.cwd(), "PG FORM (Responses).csv");
     console.log(`Reading CSV file from: ${csvFilePath}`);
 
     fs.createReadStream(csvFilePath)
