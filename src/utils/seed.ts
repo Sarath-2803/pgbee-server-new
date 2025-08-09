@@ -1,5 +1,5 @@
 // src/seeders/seed.ts
-import { User, Owner, Hostel, Ammenities, Rent, File } from "@/models";
+import { User, Owner, Hostel, Role, Ammenities, Rent, File } from "@/models";
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
@@ -198,10 +198,14 @@ const seedDatabase = async () => {
     // const ownerRole = await Role.create({ name: "owner" });
     // await Role.create({ name: "student" });
     // console.log("Roles seeded successfully.");
+    const ownerRole = await Role.findOne({ where: { name: "owner" } });
 
     // Read and Process CSV Data
     const results: HostelCsvRow[] = [];
-    const csvFilePath = path.join(process.cwd(), "PG FORM (Responses).csv");
+    const csvFilePath = path.join(
+      process.cwd(),
+      "PG FORM (Responses) - Form Responses 1.csv",
+    );
     console.log(`Reading CSV file from: ${csvFilePath}`);
 
     fs.createReadStream(csvFilePath)
